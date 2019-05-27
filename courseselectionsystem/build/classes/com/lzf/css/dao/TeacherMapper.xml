@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 命名空间  值就是Mapper接口的全路径 -->
+<mapper namespace="com.lzf.css.dao.TeacherMapper">
+
+	<!-- elect到 course student -->
+	<resultMap type="Elect" id="ECSResultMap">
+		<result column="sid" property="sid"></result>
+		<result column="cid" property="cid"></result>
+		<result column="score" property="score"></result>
+		<result column="credit" property="credit"></result>
+		<association property="cour" javaType="Course">
+			<id column="cid" property="cid"></id>
+			<result column="tid" property="tid"></result>
+			<result column="cname" property="cname"></result>
+			<result column="ctype" property="ctype"></result>
+			<result column="ccredit" property="ccredit"></result>
+			<result column="cmax" property="cmax"></result>
+			<result column="cnote" property="cnote"></result>
+			<result column="cprecid" property="cprecid"></result>
+			<result column="ctime" property="ctime"></result>
+			<result column="croom" property="croom"></result>
+		</association>
+		<association property="stu" javaType="Student">
+			<id column="sid" property="sid"></id>
+			<result column="skey" property="skey"></result>
+			<result column="sname" property="sname"></result>
+			<result column="ssex" property="ssex"></result>
+			<result column="sage" property="sage"></result>
+			<result column="scredit" property="scredit"></result>
+			<result column="saddress" property="saddress"></result>
+			<result column="sphone" property="sphone"></result>
+			<result column="semail" property="semail"></result>
+		</association>
+	</resultMap>
+
+	<!-- 根据老师账号查老师 -->
+	<select id="findTeacByTid" parameterType="String" resultType="Teacher">
+		select * from teacher where tid=#{id}
+	</select>
+	<!-- 老师修改密码 -->
+	<update id="updateTeacTkey" parameterType="Teacher">
+		update teacher set tkey=#{tkey} where tid=#{tid}
+	</update>
+	<!-- 查询老师所代的课程 -->
+	<select id="findCourByTid" parameterType="String" resultType="Course">
+		select * from course where tid=#{tid}
+	</select>
+	<!-- 查看哪些学生选了哪些课并给分 -->
+	<select id="findECSByTid" parameterType="String" resultMap="ECSResultMap">
+		select c.*,e.*,s.* from course c,elect e,student s 
+			where c.cid=e.cid and s.sid=e.sid and c.tid=#{tid}
+	</select>
+	<!-- 修改学生成绩 -->
+	<update id="updateScoreBySidCid" parameterType="Elect">
+		update elect set score=#{score} where sid=#{sid} and cid=#{cid}
+	</update>
+	<!-- 修改学生学分 -->
+	<update id="updateCreditBySidCid" parameterType="Elect">
+		update elect set credit=3 where score >= 60 
+			and sid=#{sid} and cid=#{cid} and cid in (select cid from course where ctype='选修') 
+		 
+	</update>
+	<!-- 修改学生学分 --> 
+	<update id="updateCreditBySidCidM" parameterType="Elect">
+		update elect set credit=5 where score >= 60
+			and sid=#{sid} and cid=#{cid} and cid in (select cid from course where ctype='必修')
+	</update>
+	<!-- 修改学生学分 -->
+	<update id="updateCreditBySC" parameterType="Elect">
+		update elect set credit=0 
+			where score between 0 and 59 and sid=#{sid} and cid=#{cid}
+	</update>
+	<!-- 查询老师所代课有多少学生在上 -->
+	<select id="findElectCountByTid" parameterType="String" resultType="int">
+		select count(*) from elect where cid in
+			(select cid from course where tid=#{tid})
+	</select>
+	<!-- 查看哪些学生选了哪些课并给分由高到低排序 -->
+	<select id="findECSByTidAndTopToBot" parameterType="String" resultMap="ECSResultMap">
+		select c.*,e.*,s.* from course c,elect e,student s 
+			where c.cid=e.cid and s.sid=e.sid and c.tid=#{tid}
+				order by e.score desc
+	</select>
+	<!-- 查看哪些学生选了哪些课并给分由低到高排序 -->
+	<select id="findECSByTidAndBotToTop" parameterType="String" resultMap="ECSResultMap">
+		select c.*,e.*,s.* from course c,elect e,student s 
+			where c.cid=e.cid and s.sid=e.sid and c.tid=#{tid}
+				order by e.score asc
+	</select>
+	
+</mapper>

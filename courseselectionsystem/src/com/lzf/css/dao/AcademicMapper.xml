@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 命名空间  值就是Mapper接口的全路径 -->
+<mapper namespace="com.lzf.css.dao.AcademicMapper">
+	
+	<!-- course到teacher -->
+	<resultMap type="Course" id="CtResultMap">
+		<id column="cid" property="cid"></id>
+		<result column="tid" property="tid"></result>
+		<result column="cname" property="cname"></result>
+		<result column="ctype" property="ctype"></result>
+		<result column="ccredit" property="ccredit"></result>
+		<result column="cmax" property="cmax"></result>
+		<result column="cnote" property="cnote"></result>
+		<result column="cprecid" property="cprecid"></result>
+		<result column="ctime" property="ctime"></result>
+		<result column="croom" property="croom"></result>
+		<association property="teac" javaType="Teacher">
+			<id column="tid" property="tid"></id>
+			<result column="tkey" property="tkey"></result>
+			<result column="tname" property="tname"></result>
+			<result column="tsex" property="tsex"></result>
+			<result column="tage" property="tage"></result>
+			<result column="tphone" property="tphone"></result>
+			<result column="temail" property="temail"></result>
+		</association>
+	</resultMap>
+	
+	<!--根据教务处账号查教务处信息 -->
+	<select id="findAcadByAid" parameterType="String" resultType="Academic">
+		select * from academic where aid=#{aid}
+	</select>
+	<!-- 管理员修改密码 -->
+	<update id="updateAcadAkey" parameterType="Academic">
+		update academic set akey=#{akey} where aid=#{aid}
+	</update>
+	<!-- 全查学生 -->
+	<select id="findAllStu" resultType="Student">
+		select * from student 
+	</select>
+	<!-- 全查教师 -->
+	<select id="findAllTeac" resultType="Teacher">
+		select * from teacher
+	</select>
+	<!-- 全查课程及对应老师 -->
+	<select id="findAllCourseAndTeacher" resultMap="CtResultMap">
+		select c.*,t.* from course c,teacher t where c.tid=t.tid
+	</select>
+	<!-- 根据sid查学生 -->
+	<select id="findStuBySid" parameterType="String" resultType="Student">
+		select * from student where sid=#{sid}
+	</select>
+	<!-- 根据tid查教师 -->
+	<select id="findTeacByTid" parameterType="String" resultType="Teacher">
+		select * from teacher where tid=#{tid}
+	</select>
+	<!-- 根据cid查课程 -->
+	<select id="findCourByCid" parameterType="int" resultType="Course">
+		select * from course where cid=#{cid}
+	</select>
+	<!-- 添加学生 -->
+	<insert id="insertStu" parameterType="Student">
+		insert into student values(#{sid},#{skey},#{sname},#{ssex},#{sage},#{scredit},#{saddress},#{sphone},#{semail},#{sbrithday})
+	</insert>
+	<!-- 添加学生后给添加必修课 -->
+	<insert id="insertCourseM" parameterType="Elect">
+		insert into elect values(#{sid},#{cid},0,0)
+	</insert>
+	<!-- 查询所有必修的cid -->
+	<select id="findCidByCtypeM" resultType="int">
+		select cid from course where ctype='必修'
+	</select>
+	<!-- 删除学生 -->
+	<delete id="deleteStu" parameterType="String">
+		delete from student where sid=#{sid}
+	</delete>
+	<!-- 删除学生后删除对应的必修课 -->
+	<delete id="deleteCourse" parameterType="String">
+		delete from elect where sid=#{sid}
+	</delete>
+	<!-- 修改学生信息 -->
+	<update id="updeteStudent" parameterType="Student">
+		update student set sname=#{sname},ssex=#{ssex},sage=#{sage},scredit=#{scredit},saddress=#{saddress},sphone=#{sphone},semail=#{semail} where sid=#{sid}
+	</update>
+	<!-- 添加老师 -->
+	<insert id="insertTeac" parameterType="Teacher">
+		insert into teacher values(#{tid},#{tkey},#{tname},#{tsex},#{tage},#{tphone},#{temail});
+	</insert>
+	<!-- 删除老师 -->
+	<delete id="deleteTeac" parameterType="String">
+		delete from teacher where tid=#{tid}
+	</delete>
+	<!-- 修改其所代课的老师 -->
+	<update id="updateTid" parameterType="String">
+		update course set tid=1007 where tid=#{tid}
+	</update>
+	<!-- 修改老师信息 -->
+	<update id="updateTeac" parameterType="Teacher">
+		update teacher set tname=#{tname},tsex=#{tsex},tage=#{tage},tphone=#{tphone},temail=#{temail} where tid=#{tid}
+	</update>
+	<!-- 添加课程 -->
+	<insert id="insertCour" parameterType="Course">
+		insert into course values(#{cid},#{tid},#{cname},#{ctype},#{ccredit},#{cmax},#{cnote},#{cprecid},#{ctime},#{croom})
+	</insert>
+	<!-- 根据cid删除elect表 -->
+	<delete id="delectElectByCid" parameterType="int">
+		delete from elect where cid=#{cid}
+	</delete>
+	<!-- 删除课程 -->
+	<delete id="deleteCour" parameterType="int">
+		delete from course where cid=#{cid}
+	</delete>
+	<!-- 修改课程信息 -->
+	<update id="updateCour" parameterType="Course">
+		update course set tid=#{tid},cname=#{cname},ctype=#{ctype},ccredit=#{ccredit},cmax=#{cmax},cnote=#{cnote},cprecid=#{cprecid},ctime=#{ctime},croom=#{croom} where cid=#{cid}
+	</update>
+	<!-- 分页查询student表的总条数 -->
+	<select id="findAllCountStu" parameterType="int" resultType="Student">
+		select * from student limit #{num},5
+	</select>
+	<!-- 查询student表的总条数 -->
+	<select id="findStuAllCount" resultType="int">
+		select count(*) from student
+	</select>
+	<!-- 查询teacher表的总条数 -->
+	<select id="findTeacAllCount" resultType="int">
+		select count(*) from teacher
+	</select>
+	<!-- 查询course表的总条数 -->
+	<select id="findCourAllCount" resultType="int">
+		select count(*) from course
+	</select>
+	<!-- 当添加的课程为必修课时，把该课给所有学生添加到elect表 -->
+	<!-- 查询所有学生的sid -->
+	<select id="findAllSid" resultType="String">
+		select sid from student
+	</select>
+	<!-- 添加elect表 -->
+	<insert id="insertElectM" parameterType="Elect">
+		insert into elect values(#{sid},#{cid},0,0)
+	</insert>
+</mapper>

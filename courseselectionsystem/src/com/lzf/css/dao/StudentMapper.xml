@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 命名空间  值就是Mapper接口的全路径 -->
+<mapper namespace="com.lzf.css.dao.StudentMapper">
+
+	<!-- 定义所有表的resultMap -->
+	<!-- student -->
+	<resultMap type="Student" id="stuResultMap">
+		<id column="sid" property="sid"></id>
+		<result column="skey" property="skey"></result>
+		<result column="sname" property="sname"></result>
+		<result column="ssex" property="ssex"></result>
+		<result column="sage" property="sage"></result>
+		<result column="scredit" property="scredit"></result>
+		<result column="saddress" property="saddress"></result>
+		<result column="sphone" property="sphone"></result>
+		<result column="semail" property="semail"></result>
+	</resultMap>
+	<!-- teacher -->
+	<resultMap type="Teacher" id="teacResultMap">
+		<id column="tid" property="tid"></id>
+		<result column="tkey" property="tkey"></result>
+		<result column="tname" property="tname"></result>
+		<result column="tsex" property="tsex"></result>
+		<result column="tage" property="tage"></result>
+		<result column="tphone" property="tphone"></result>
+		<result column="temail" property="temail"></result>
+	</resultMap>
+	<!-- course -->
+	<resultMap type="Course" id="courResultMap">
+		<id column="cid" property="cid"></id>
+		<result column="tid" property="tid"></result>
+		<result column="cname" property="cname"></result>
+		<result column="ctype" property="ctype"></result>
+		<result column="ccredit" property="ccredit"></result>
+		<result column="cmax" property="cmax"></result>
+		<result column="cnote" property="cnote"></result>
+		<result column="cprecid" property="cprecid"></result>
+		<result column="ctime" property="ctime"></result>
+		<result column="croom" property="croom"></result>
+	</resultMap>
+	<!-- elect -->
+	<resultMap type="Elect" id="electResultMap">
+		<result column="sid" property="sid"></result>
+		<result column="cid" property="cid"></result>
+		<result column="score" property="score"></result>
+		<result column="credit" property="credit"></result>
+	</resultMap>
+	<!-- academic -->
+	<resultMap type="Academic" id="acadResultMap">
+		<id column="aid" property="aid"></id>
+		<result column="akey" property="akey"></result>
+	</resultMap>
+	
+	<!-- course主表  teacher和elect为从表 -->
+	<resultMap type="Course" id="CTEResultMap">
+		<id column="cid" property="cid"></id>
+		<result column="tid" property="tid"></result>
+		<result column="cname" property="cname"></result>
+		<result column="ctype" property="ctype"></result>
+		<result column="ccredit" property="ccredit"></result>
+		<result column="cmax" property="cmax"></result>
+		<result column="cnote" property="cnote"></result>
+		<result column="cprecid" property="cprecid"></result>
+		<result column="ctime" property="ctime"></result>
+		<result column="croom" property="croom"></result>
+		<association property="teac" javaType="Teacher">
+			<id column="tid" property="tid"></id>
+			<result column="tkey" property="tkey"></result>
+			<result column="tname" property="tname"></result>
+			<result column="tsex" property="tsex"></result>
+			<result column="tage" property="tage"></result>
+			<result column="tphone" property="tphone"></result>
+			<result column="temail" property="temail"></result>
+		</association>
+		<collection property="elect" ofType="Elect">
+			<result column="sid" property="sid"></result>
+			<result column="cid" property="cid"></result>
+			<result column="score" property="score"></result>
+			<result column="credit" property="credit"></result>
+		</collection>
+	</resultMap>
+	<!-- course主表  teacher为从表 -->
+	<resultMap type="Course" id="CtResultMap">
+		<id column="cid" property="cid"></id>
+		<result column="tid" property="tid"></result>
+		<result column="cname" property="cname"></result>
+		<result column="ctype" property="ctype"></result>
+		<result column="ccredit" property="ccredit"></result>
+		<result column="cmax" property="cmax"></result>
+		<result column="cnote" property="cnote"></result>
+		<result column="cprecid" property="cprecid"></result>
+		<result column="ctime" property="ctime"></result>
+		<result column="croom" property="croom"></result>
+		<association property="teac" javaType="Teacher">
+			<id column="tid" property="tid"></id>
+			<result column="tkey" property="tkey"></result>
+			<result column="tname" property="tname"></result>
+			<result column="tsex" property="tsex"></result>
+			<result column="tage" property="tage"></result>
+			<result column="tphone" property="tphone"></result>
+			<result column="temail" property="temail"></result>
+		</association>
+	</resultMap>
+	<!-- elect到course到teacher -->
+	<resultMap type="Elect" id="ECTResultMap">
+		<result column="sid" property="sid"></result>
+		<result column="cid" property="cid"></result>
+		<result column="score" property="score"></result>
+		<result column="credit" property="credit"></result>
+		<association property="cour" javaType="Course">
+			<id column="cid" property="cid"></id>
+			<result column="tid" property="tid"></result>
+			<result column="cname" property="cname"></result>
+			<result column="ctype" property="ctype"></result>
+			<result column="ccredit" property="ccredit"></result>
+			<result column="cmax" property="cmax"></result>
+			<result column="cnote" property="cnote"></result>
+			<result column="cprecid" property="cprecid"></result>
+			<result column="ctime" property="ctime"></result>
+			<result column="croom" property="croom"></result>
+			<association property="teac" javaType="Teacher">
+				<id column="tid" property="tid"></id>
+				<result column="tkey" property="tkey"></result>
+				<result column="tname" property="tname"></result>
+				<result column="tsex" property="tsex"></result>
+				<result column="tage" property="tage"></result>
+				<result column="tphone" property="tphone"></result>
+				<result column="temail" property="temail"></result>
+			</association>
+		</association>
+	</resultMap>
+	
+	<!-- 根据学生账号查学生 -->
+	<select id="findStuBySid" parameterType="String" resultType="Student">
+		select * from student where sid=#{id}
+	</select>
+	<!-- 学生修改密码 -->
+	<update id="updateStuSkey" parameterType="Student">
+		update student set skey=#{skey} where sid=#{sid}
+	</update>
+	<!-- 查询选修课及代课老师 -->
+	<select id="findXxk" resultMap="CtResultMap">
+		select c.*,t.* from course c,teacher t where c.tid=t.tid and c.ctype='选修'
+	</select>
+	<!-- 查询已选择的选修课 -->
+	<select id="findXXK" resultMap="CTEResultMap">
+	 	select c.*,t.*,e.* from course c,teacher t,elect e 
+	 		where c.tid=t.tid and c.cid=e.cid and c.ctype='选修'
+	</select>
+	<!-- 查询必修课 -->
+	<select id="findMuElect" resultMap="CtResultMap">
+		select c.*,t.* from course c,teacher t where c.tid=t.tid and c.ctype='必修'
+	</select>
+	<!-- 查询没有选择的选修课 -->
+	<select id="fingNoElect" parameterType="String" resultMap="CtResultMap">
+		select c.*,t.* from course c,teacher t where c.tid=t.tid and c.cid not in 
+			(select cid from elect where sid=#{sid}) 
+	</select>
+	<!-- 查询已选择的选修课 -->
+	<select id="findYeElect" parameterType="String" resultMap="CtResultMap">
+		select c.*,t.* from course c,teacher t where c.tid=t.tid and c.ctype='选修' and c.cid in
+			(select cid from elect where sid=#{sid})
+	</select>
+	<!-- 学生选课  添加elect表-->
+	<insert id="insertElect" parameterType="Elect">
+		insert into elect values(#{sid},#{cid},0,0)
+	</insert>
+	<!-- 学生取消选课 删除elect表 -->
+	<delete id="deleteElect" parameterType="QueryVo">
+		delete from elect where sid=#{stu.sid} and cid=#{cour.cid} 
+	</delete>
+	<!-- 根据sid和cid 查询elect表 -->
+	<select id="findElectBySidCid" parameterType="QueryVo" resultType="Elect">
+		select * from elect where sid=#{stu.sid} and cid=#{cour.cid}
+	</select>
+	<!-- 学生选课 增加course表中的cprecid -->
+	<update id="AddCourCpre" parameterType="int">
+		update course set cprecid=cprecid+1 where cid=#{cid}
+	</update>
+	<!-- 学生取消选课 减少course表中的cprecid -->
+	<update id="LostCourCpre" parameterType="int">
+		update course set cprecid=cprecid-1 where cid=#{cid}
+	</update>
+	<!-- 根据sid和cid查score -->
+	<select id="findScoreBySidCid" parameterType="Elect" resultType="double">
+		select score from elect where sid=#{sid} and cid=#{cid}
+	</select>
+	<!-- 学生取消选课 减掉student表中相应的scredit -->
+	<update id="updateStuScredit" parameterType="String">
+		update student set scredit=scredit-3 where sid=#{sid}
+	</update>
+	<!-- 查询学生的考试成绩及单科学分 -->
+	<select id="findScoreCreditBySid" parameterType="String" resultMap="ECTResultMap">
+		select e.*,c.*,t.* from elect e,course c,teacher t 
+			where e.cid=c.cid and c.tid=t.tid and e.sid=#{sid} 
+	</select>
+	<!-- 查询学生所有学分 -->
+	<select id="findCreditBySid" parameterType="String" resultType="Elect">
+		select * from elect where sid=#{sid}
+	</select>
+	<!-- 修改学生的学分 -->
+	<update id="updateScreditBySid" parameterType="Student">
+		update student set scredit=#{scredit} where sid=#{sid}
+	</update>
+	<!-- 查询course中的cmax -->
+	<select id="findCmaxByCid" parameterType="int" resultType="int">
+		select cmax from course where cid=#{cid}
+	</select>
+	<!-- 查询course中的cprecid -->
+	<select id="findCprecidByCid" parameterType="int" resultType="int">
+		select cprecid from course where cid=#{cid}
+	</select>
+	<!-- 查询student表中的sbrithday -->
+	<select id="findStuSbrithdayBySid" parameterType="String" resultType="String">
+		select sbrithday from student where sid=#{sid}
+	</select>
+	<!-- 根据当前时间更新student的sage -->
+	<update id="updateSageByND" parameterType="Student">
+		update student set sage=#{sage} where sid=#{sid}
+	</update>
+</mapper>
