@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.authority.dao.UserInfoMapper" >
+  <!-- UserInfo的resultMap -->
+  <resultMap id="userInfoResultMap" type="UserInfo" >
+    <id column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="group_id" property="groupId" jdbcType="INTEGER" />
+    <result column="nick_name" property="nickName" jdbcType="VARCHAR" />
+    <result column="user_code" property="userCode" jdbcType="VARCHAR" />
+    <result column="user_pwd" property="userPwd" jdbcType="VARCHAR" />
+    <result column="user_type" property="userType" jdbcType="CHAR" />
+    <result column="user_state" property="userState" jdbcType="CHAR" />
+    <result column="is_delete" property="isDelete" jdbcType="CHAR" />
+    <result column="create_by" property="createBy" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_by" property="updateBy" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <!-- AuthInfo的resultMap -->
+  <resultMap id="authInfoResultMap" type="AuthInfo" >
+    <id column="auth_id" property="authId" jdbcType="INTEGER" />
+    <result column="parent_id" property="parentId" jdbcType="INTEGER" />
+    <result column="auth_name" property="authName" jdbcType="VARCHAR" />
+    <result column="auth_desc" property="authDesc" jdbcType="VARCHAR" />
+    <result column="auth_grade" property="authGrade" jdbcType="INTEGER" />
+    <result column="auth_type" property="authType" jdbcType="CHAR" />
+    <result column="auth_url" property="authUrl" jdbcType="VARCHAR" />
+    <result column="auth_code" property="authCode" jdbcType="VARCHAR" />
+    <result column="auth_order" property="authOrder" jdbcType="INTEGER" />
+    <result column="auth_state" property="authState" jdbcType="CHAR" />
+    <result column="create_by" property="createBy" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_by" property="updateBy" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <!-- role的resultMap -->
+  <resultMap id="roleResultMap" type="Role" >
+    <id column="role_id" property="roleId" jdbcType="INTEGER" />
+    <result column="role_name" property="roleName" jdbcType="VARCHAR" />
+    <result column="role_desc" property="roleDesc" jdbcType="VARCHAR" />
+    <result column="role_code" property="roleCode" jdbcType="VARCHAR" />
+    <result column="role_state" property="roleState" jdbcType="CHAR" />
+    <result column="create_by" property="createBy" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="udate_by" property="udateBy" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <!-- UserGroup的resultMap -->
+  <resultMap id="UserGroupResultMap" type="UserGroup" >
+    <id column="group_id" property="groupId" jdbcType="INTEGER" />
+    <result column="group_name" property="groupName" jdbcType="VARCHAR" />
+    <result column="group_code" property="groupCode" jdbcType="VARCHAR" />
+    <result column="group_desc" property="groupDesc" jdbcType="VARCHAR" />
+    <result column="group_state" property="groupState" jdbcType="CHAR" />
+  </resultMap>
+	<!-- 获取当前用户相应级别的权限 -->
+	<!-- 1.用户自身的权限   2.用户角色关联的权限  3.用户组关联的权限 -->
+	<select id="queryUserAuth" parameterType="HashMap" resultMap="authInfoResultMap">
+		select * from auth_info where auth_id in
+			(select ua.auth_id from user_info ui,user_auth ua 
+				where ui.user_id=ua.user_id and ui.is_delete=0
+				and ui.user_id=#{userId})
+			and auth_state=1 and parent_id=#{parentId}  
+		union
+		select * from auth_info where auth_id in
+			(select auth_id from role_auth where role_id in
+				(select role_id from role where role_id in
+					(select ur.role_id from user_info ui,user_role ur 
+						where ui.user_id=ur.user_id and ui.is_delete=0
+						and ui.user_id=#{userId})
+					and role_state=1))
+			and auth_state=1 and parent_id=#{parentId}
+		union
+		select * from auth_info where auth_id in
+			(select auth_id from role_auth where role_id in
+				(select role_id from role where role_id in
+					(select gr.role_id from user_group ug,group_role gr 
+						where ug.group_id=gr.group_id and ug.group_state=1
+						and ug.group_id=#{groupId})
+					and role_state=1))
+			and auth_state=1 and parent_id=#{parentId}
+	</select>
+	
+	<!-- 分页查询用户信息 -->  
+	<!-- user_info(主表) ,role(从),user_group(从)三表联查 -->
+	<resultMap type="UserInfo" id="userInfoRoleAndGroupResultMap" extends="userInfoResultMap">
+		<!-- 关联role 一对一 -->
+		<association property="role" javaType="Role" resultMap="roleResultMap"></association>
+		<!-- 关联user_group 一对一 -->
+		<association property="userGroup" javaType="UserGroup" resultMap="UserGroupResultMap"></association>
+	</resultMap>
+	<!-- sql片段 模糊查询根据条件查询 -->
+	<sql id="query_userInfo_where">
+		<!-- 三表关联条件及可用部门 -->
+		ui.user_type=r.role_id and ui.group_id=ug.group_id and ug.group_state='1'
+		<!-- 用户名不为空则拼接 -->
+		<if test="userCode != null and userCode != ''">
+			and ui.user_code like concat("%",#{userCode},"%")
+		</if>
+		<!-- 用户类型不为空则拼接 -->
+		<if test="userType != null and userType != ''">
+			and ui.user_type=#{userType}
+		</if>
+		<!-- 用户权限状态不为空则拼接 -->
+		<if test="userState != null and userState != ''">
+			and ui.user_state=#{userState}
+		</if>
+	</sql>
+	<!-- user_info(主表) ,role(从),user_group(从)三表联查 -->
+	<select id="queryUserInfoPage" parameterType="PageUtil" resultMap="userInfoRoleAndGroupResultMap">
+		select ui.*,r.*,ug.* from user_info ui,role r,user_group ug
+			<where>
+				<include refid="query_userInfo_where" />
+			</where>
+			limit #{limitIndex},#{pageSize}
+	</select>
+	<!-- 查询user_info的总条数 -->
+	<select id="queryUserInfoAllCount" parameterType="PageUtil" resultType="Integer">
+		select count(*) from user_info ui,role r,user_group ug
+		<where>
+			<include refid="query_userInfo_where" />
+		</where>
+	</select>
+	<!-- 根据user_code查询user_info -->
+	<select id="queryUserInfoByUserCode" parameterType="String" resultMap="userInfoResultMap" >
+		select * from user_info where user_code=#{userCode}
+	</select>
+	<!-- 查询user_group并且group_state为1的 -->
+	<select id="queryUserGroupByGroupState" resultMap="UserGroupResultMap">
+		select * from user_group where group_state='1'
+	</select>
+	<!-- 查询role并且role_state为1的 -->
+	<select id="queryRoleByRoleState" resultMap="roleResultMap">
+		select * from role where role_state='1'
+	</select>
+	<!-- 添加用户信息 -->
+	<insert id="addUserInfo" parameterType="UserInfo">
+		insert into user_info(group_id,nick_name,user_code,user_pwd,user_type,create_by) 
+			values(#{groupId},#{nickName},#{userCode},MD5(#{userPwd}),'3',#{createBy})
+	</insert>
+	<!-- 修改用户信息 -->
+	<update id="updateUserInfo" parameterType="UserInfo">
+		update user_info set group_id=#{groupId},nick_name=#{nickName},is_delete=#{isDelete},update_by=#{updateBy}
+			where user_code=#{userCode}
+	</update>
+	<!-- 逻辑删除用户 -->
+	<update id="deleteUserInfo" parameterType="UserInfo">
+		update user_info set is_delete='1',update_by=#{updateBy}
+			where user_code=#{userCode}
+	</update>
+	<!-- 禁用/启用 用户权限 -->
+	<update id="startStopUser" parameterType="UserInfo">
+		update user_info set user_state=#{userState},update_by=#{updateBy}
+			where user_code=#{userCode}
+	</update>
+	<!-- 重置密码 -->
+	<update id="resetUserPwd" parameterType="UserInfo">
+		update user_info set user_pwd=MD5('123456'),update_by=#{updateBy}
+			where user_code=#{userCode}
+	</update>
+	<!--查询用户已有角色的id-->
+	<select id="queryUserRoleIdByUserId" parameterType="UserRole" resultType="String">
+		select group_concat(role_id) from user_role where user_id=#{userId}
+	</select>
+	<!-- 根据user_id删除user_role -->
+	<delete id="deleteUserRoleByUserId" parameterType="UserRole">
+		delete from user_role where user_id=#{userId}
+	</delete>
+	<!-- 根据user_id添加user_role -->
+	<insert id="insertUserRole" parameterType="UserRole">
+		insert into user_role(role_id,user_id) values(#{roleId},#{userId}) 
+	</insert>
+	<!-- 查询用户已有的auth_id -->
+	<select id="queryUserAuthIdByUserId" parameterType="UserAuth" resultType="String">
+		select group_concat(auth_id) from user_auth where user_id=#{userId}
+	</select>
+	<!-- 查询auth_info并且auth_state=1 -->
+	<select id="queryAuthInfoByAuthState" resultMap="authInfoResultMap">
+		select * from auth_info where auth_state='1'
+	</select>
+	<!-- 根据user_id删除user_auth -->
+	<delete id="deleteUserAuthByUserId" parameterType="UserAuth">
+		delete from user_auth where user_id=#{userId}
+	</delete>
+	<!-- 根据user_id添加user_auth -->
+	<insert id="insertUserAuth" parameterType="UserAuth">
+		insert into user_auth(user_id,auth_id) values(#{userId},#{authId})
+	</insert>
+</mapper>

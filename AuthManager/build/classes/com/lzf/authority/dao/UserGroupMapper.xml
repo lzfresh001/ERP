@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.authority.dao.UserGroupMapper" >
+  <resultMap id="userGroupResultMap" type="com.lzf.authority.vo.UserGroup" >
+    <id column="group_id" property="groupId" jdbcType="INTEGER" />
+    <result column="group_name" property="groupName" jdbcType="VARCHAR" />
+    <result column="group_code" property="groupCode" jdbcType="VARCHAR" />
+    <result column="group_desc" property="groupDesc" jdbcType="VARCHAR" />
+    <result column="group_state" property="groupState" jdbcType="CHAR" />
+  </resultMap>
+  <!-- AuthInfo的resultMap -->
+  <resultMap id="authInfoResultMap" type="AuthInfo" >
+    <id column="auth_id" property="authId" jdbcType="INTEGER" />
+    <result column="parent_id" property="parentId" jdbcType="INTEGER" />
+    <result column="auth_name" property="authName" jdbcType="VARCHAR" />
+    <result column="auth_desc" property="authDesc" jdbcType="VARCHAR" />
+    <result column="auth_grade" property="authGrade" jdbcType="INTEGER" />
+    <result column="auth_type" property="authType" jdbcType="CHAR" />
+    <result column="auth_url" property="authUrl" jdbcType="VARCHAR" />
+    <result column="auth_code" property="authCode" jdbcType="VARCHAR" />
+    <result column="auth_order" property="authOrder" jdbcType="INTEGER" />
+    <result column="auth_state" property="authState" jdbcType="CHAR" />
+    <result column="create_by" property="createBy" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_by" property="updateBy" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <!-- role的resultMap -->
+  <resultMap id="RoleResultMap" type="com.lzf.authority.vo.Role" >
+    <id column="role_id" property="roleId" jdbcType="INTEGER" />
+    <result column="role_name" property="roleName" jdbcType="VARCHAR" />
+    <result column="role_desc" property="roleDesc" jdbcType="VARCHAR" />
+    <result column="role_code" property="roleCode" jdbcType="VARCHAR" />
+    <result column="role_state" property="roleState" jdbcType="CHAR" />
+    <result column="create_by" property="createBy" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="udate_by" property="udateBy" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  	<!-- sql片段  模糊查询user_group -->
+  	<sql id="query_group_where">
+  		<!-- groupCode 不为空就拼接 -->
+  		<if test="groupCode != null and groupCode != ''">
+  			and group_code like concat("%",#{groupCode},"%")
+  		</if>
+  		<!-- groupState 不为空就拼接 -->
+  		<if test="groupState != null and groupState != ''">
+  			and group_state=#{groupState}
+  		</if>
+  	</sql>
+	<!-- 全查user_group -->
+	<select id="queryAllUserGroup" parameterType="PageUtil" resultMap="userGroupResultMap">
+		select * from user_group
+			<where>
+				<include refid="query_group_where"></include>
+			</where>
+			limit #{limitIndex},#{pageSize}
+	</select>
+	<!-- 查询user_group总条数 -->
+	<select id="queryUserGroupAllCount" parameterType="PageUtil" resultType="Integer">
+		select count(*) from user_group
+		<where>
+			<include refid="query_group_where"></include>
+		</where>
+	</select>
+	<!-- 根据group_code查询user_group -->
+	<select id="queryUserGroupByGroupCode" parameterType="UserGroup" resultMap="userGroupResultMap">
+		select * from user_group where group_code=#{groupCode}
+	</select>
+	<!-- 添加部门 -->
+	<insert id="insertUserGroup" parameterType="UserGroup">
+		insert into user_group(group_name,group_code,group_desc)
+			values(#{groupName},#{groupCode},#{groupDesc})
+	</insert>
+	<!-- 修改部门 -->
+	<update id="updateUserGroupByGroupId" parameterType="UserGroup">
+		update user_group set group_name=#{groupName},group_desc=#{groupDesc} 
+			where group_id=#{groupId}
+	</update>
+	<!-- 禁用/启用 group_state -->
+	<update id="stopstartGroupState" parameterType="UserGroup">
+		update user_group set group_state=#{groupState}
+			where group_id=#{groupId}
+	</update>
+	<!-- 根据group_id查询auth_id -->
+	<select id="queryAuthIdByGroupId" parameterType="Integer" resultType="String">
+		select group_concat(auth_id) from role_auth where role_id in
+			(select role_id from group_role where group_id=#{groupId})
+	</select>
+	<!-- 查询auth_info并且auth_state=1 -->
+	<select id="queryAuthInfoByAuthState" resultMap="authInfoResultMap" >
+		select * from auth_info where auth_state='1'
+	</select>
+	<!-- 根据role_state查询role -->
+	<select id="queryRoleByRoleState" resultMap="RoleResultMap">
+		select * from role where role_state='1'
+	</select>
+	<!-- 根据group_id查询已有的role_id -->
+	<select id="queryRoleIdByGroupId" parameterType="GroupRole" resultType="String">
+		select group_concat(role_id) from group_role where group_id=#{groupId}
+	</select>
+	<!-- 根据group_id删除group_role -->
+	<delete id="deleteGroupRoleByGroupId" parameterType="GroupRole">
+		delete from group_role where group_id=#{groupId}
+	</delete>
+	<!-- 根据group_id添加group_role -->
+	<insert id="insertGroupRole" parameterType="GroupRole">
+		insert into group_role(group_id,role_id) values(#{groupId},#{roleId})
+	</insert>
+	<!-- 根据group_id删除user_group -->
+	<delete id="deleteUserGroupByGroupId" parameterType="UserGroup">
+		delete from user_group where group_id=#{groupId}
+	</delete>
+</mapper>
