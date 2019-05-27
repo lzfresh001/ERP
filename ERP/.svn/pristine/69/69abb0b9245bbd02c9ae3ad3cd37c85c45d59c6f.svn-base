@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>用户管理</title>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/default/easyui.css"/>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/icon.css"/>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body style="margin: 1px;">
+	<table id="dg" title="用户管理" class="easyui-datagrid" fitColumns="true" pagination="true"
+		rownumbers="true" url="../user/queryAllUser.do"
+		fit="true" toolbar="#tb" pageList="[5,6,7,8]" pageSize="5">
+		<thead>
+			<tr>
+				<th field="cb" checkbox="true" align="center"></th>
+				<th field="uid" width="50px" align="center">用户编号</th> 
+				<th field="uname" width="50px" align="center">用户名称</th>
+				<th field="password" width="50px" align="center">用户密码</th>
+				<th field="roleId" width="50px" align="center" hidden="true">角色ID</th>
+				<th field="roleName" width="50px" align="center">角色名称</th>
+				<th field="userDescription" width="50px" align="center">备注</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="tb">
+		<div>
+			<a href="javascript:openUserAddDialog()" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+			<a href="javascript:openUserModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
+			<a href="javascript:userDelete()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+        </div>
+		<div>&nbsp;用户名称：&nbsp;<input type="text" name="s_userName" id="s_userName" size="20" onkeydown="if(event.keyCode==13) searchUser()"/>
+			&nbsp;用户角色：&nbsp;<input class="easyui-combobox" id="s_roleId" name="s_roleId" size="20" data-options="editable:false,panelHeight:'auto',valueField:'roleId',textField:'roleName',url:'../role/queryAllRole.do'"/>
+			<a href="javascript:searchUser()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	</div>
+	 <!-- 添加用户/修改用户 dialog (start) -->
+	 <div id="dlg" class="easyui-dialog" style="width: 600px;height: 310px;padding: 10px 20px" closed="true" buttons="#dlg-buttons" data-options="modal:true">
+	     <form id="fm" method="post">
+	     	<table cellspacing="5px">
+				<p><input type="hidden" id="uid" name="uid" /></p>
+				<tr>
+					<td>用户名称：</td>
+		      		<td>
+		      			<input type="text" id="uname" name="uname" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		      		<td>用户密码：</td>
+		      		<td>
+		      			<input type="text" id="password" name="password" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      	</tr>
+		      	<tr>
+					<td>角色名称：</td>
+		            <td>
+		      			<input type="hidden" id="roleId" name="roleId"/>
+		 				<input type="text" id="roleName" name="roleName" class="easyui-validatebox" required="true" readonly="readonly"/>
+					</td>
+					<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					<td colspan="2">
+						<a href="javascript:openRoleChooseDialog()" class="easyui-linkbutton">选择角色</a>
+					</td>
+				</tr>
+				<tr>
+					<td>备注：</td>
+					<td colspan="4">
+				     	<textarea rows="7" cols="50" name="userDescription" id="userDescription"></textarea>
+				    </td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	
+	<div id="dlg-buttons">
+	      <a href="javascript:saveUser()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+	      <a href="javascript: closeUserAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	<!-- 添加用户/修改用户 dialog (end) -->
+	
+	<!-- 选择角色 dialog (start) -->
+	<div id="dlg2" class="easyui-dialog" iconCls="icon-search" style="width: 550px;height: 480px;padding: 10px 20px" closed="true" buttons="#dlg2-buttons">
+		<div style="height: 40px" align="center">
+			角色名称：<input type="text" id="s_roleName" name="s_roleName" onkeydown="if(event.keyCode==13) searchRole()"/>
+			<a href="javascript:searchRole()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	      <div style="height: 350px;">
+			<table id="dg2" title="查询结果" class="easyui-datagrid" fitColumns="true" pagination="true" pageList="[5,6,7,8]" pageSize="5" rownumbers="true" fit="true" singleSelect="true" url="../role/findAllRole.do">
+		      <thead>
+			  	<tr>
+			  		<th field="roleId" width="50" align="center">编号</th>
+			        <th field="roleName" width="100" align="center">角色名称</th>
+			        <th field="roleDescription" width="50" align="center">备注</th>
+			    </tr>
+		      </thead>
+	      	</table>
+	      </div>
+	</div>
+	<div id="dlg2-buttons">
+	      <a href="javascript:chooseRole()" class="easyui-linkbutton" iconCls="icon-ok">确定</a>
+	      <a href="javascript:closeRoleDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	<!-- 选择角色 dialog (end) -->
+	
+	<script type="text/javascript">
+		// 模糊查询用户信息
+		function searchUser(){
+			var s_userName = $("#s_userName").val();
+			var s_roleId = $("#s_roleId").val();
+			$("#dg").datagrid("load",{
+				s_userName:s_userName,
+				s_roleId:s_roleId
+			});
+		}
+		
+		// 添加用户时判断用户名的唯一性
+		$("#uname").blur(function(){
+			var uname = $("#uname").val();
+			if(!/^\w{5,18}$/.test(uname)){
+				$.messager.alert("系统提示","用户名不合法！必须5-18位、数字或字母、下划线","warning");
+				return;
+			}
+			$.ajax({
+				type:"post",
+				dataType:"json",
+				data:{
+					uname:uname	
+				},
+				url:"../user/checkUname.do",
+				success:function(data){
+					if(data.hasUser == "1"){
+						$.messager.alert("系统提示","用户名已存在，请重新输入","warning");
+					}
+				},
+				error:function(){
+					$.messager.alert("系统提示","系统繁忙","warning");
+				}
+			});
+		});
+		
+		// 添加用户前查询所有角色
+		function openRoleChooseDialog(){
+			$("#s_roleName").val("");
+			$("#dg2").datagrid("load",{
+				s_roleName:""
+			});
+			$("#dlg2").dialog("open").dialog("setTitle","选择角色");
+		}
+		
+		// 模糊查询role
+		function searchRole(){
+			var s_roleName = $("#s_roleName").val();
+			$("#dg2").datagrid("load",{
+				s_roleName:s_roleName
+			});
+		}
+		
+		// 点击确定选择role
+		function chooseRole(){
+			var selectRows = $("#dg2").datagrid("getSelections");
+			if(selectRows.length<1){
+				$.messager.alert("系统提示","请选择一个角色","warning");
+				return;
+			}
+			var row = selectRows[0];
+			$("#roleId").val(row.roleId);
+			$("#roleName").val(row.roleName);
+			$("#dlg2").dialog("close");
+		}
+		
+		// 点击关闭按钮 关闭相应的选择角色dialog
+		function closeRoleDialog(){
+			$("#s_roleName").val("");
+			$("#dg2").datagrid("load",{
+				s_roleName:""
+			});
+			$("#dlg2").dialog("close");
+		}
+		
+		// 点击关闭按钮 关闭相应的添加用户dialog
+		function closeUserAddDialog(){
+			$("#dlg").dialog("close");
+			$("#fm").form("clear");
+		}
+		
+		// 定义添加用户/修改用户的URL
+		var saveUserUrl = "../user/saveUser.do";
+		var updateUserUrl = "../user/updateUser.do";
+		var currentUrl = "";
+		
+		// 打开添加用户的弹框
+		function openUserAddDialog(){
+			$("#dlg").dialog("open").dialog("setTitle","添加用户信息");
+			$("#uname").removeAttr("readonly");
+			$("#password").removeAttr("readonly");
+			currentUrl = saveUserUrl;
+		}
+		
+		// 修改用户
+		function openUserModifyDialog(){
+			var selectedRows = $("#dg").datagrid("getSelections");
+			if(selectedRows.length != 1){
+				$.messager.alert("系统提示","请选择一条需要修改的用户信息！","warning");
+				return;
+			}
+			var row = selectedRows[0];
+			$("#dlg").dialog("open").dialog("setTitle","修改用户信息");
+			$("#fm").form("load",row);
+			$("#uname").attr("readonly","readonly");
+			$("#password").attr("readonly","readonly");
+			currentUrl = updateUserUrl;
+		}
+		
+		// 添加用户/修改用户
+		function saveUser(){
+			var uname = $("#uname").val();  // 获取添加用户所需的信息
+			var password = $("#password").val();
+			var roleId = $("#roleId").val();
+			var userDescription = $("#userDescription").val();
+			//alert(uname+":"+password+":"+roleId+":"+userDescription);
+			if(!/^\w{5,18}$/.test(uname)){
+				$.messager.alert("系统提示","用户名不合法！必须5-18位、数字或字母、下划线","warning");
+				return;
+			}else if(!/^\w{6,50}$/.test(password)){
+				$.messager.alert("系统提示","密码不合法！必须6-50位、数字或字母、下划线","warning");
+				return;
+			}else if(!/^\S{0,100}$/.test(userDescription)){
+				$.messager.alert("系统提示","描述不合法！必须0-100位、汉字、数字或字母、下划线","warning");
+				return;
+			}else if(roleId < 1){
+				$.messager.alert("系统提示","请选择相应的角色","warning");
+				return;
+			}else{
+				$("#fm").form("submit",{
+					url:currentUrl,
+					/* onSubmit:function(){
+						return $(this).form("validate"); 
+					}, */
+					success:function(data){
+						var data=eval("("+data+")");
+						if(data.res == true){
+							$.messager.alert("系统提示","保存成功！");
+							//$("#fm").form("clear");
+							closeUserAddDialog();
+							$("#dg").datagrid("reload");
+						}else{
+							$.messager.alert("系统提示","<font color=red>"+data.res+"</font>","warning");
+						}
+					},
+					error:function(){
+						$.messager.alert("系统提示","系统繁忙！","warning");
+					}
+				});
+				currentUrl = "";
+			}
+		}
+		
+		// 删除用户信息
+		function userDelete(){
+			var selectedRows = $("#dg").datagrid("getSelections");
+			if(selectedRows.length == 0){
+				$.messager.alert("系统提示","请选择要删除的用户信息！","warning");
+				return;
+			}
+			var strUids = [];
+			for(var i=0;i<selectedRows.length;i++){
+				strUids.push(selectedRows[i].uid);
+			}
+			var Uids = strUids.join(",");
+			$.messager.confirm("删除提示","您确认要删除这<font color=red>"+selectedRows.length+"</font>条数据吗？",
+				function(r){
+					if(r){
+						$.post("../user/deleteUser.do",{delIds:Uids},
+							function(data){
+								if(data.isDel == true){
+									$.messager.alert("系统提示","您已成功删除"+data.delRows+"条数据！");
+									$("#dg").datagrid("reload");
+								}else {
+									$.messager.alert("系统提示",data.isDel);
+								}	
+						},"json");
+					}
+				});
+		}
+		
+	</script>
+</body>
+</html>

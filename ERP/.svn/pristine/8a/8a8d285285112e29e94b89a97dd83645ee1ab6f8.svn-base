@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.InBuyApplyDao" >
+	<!-- inbuyapply的resultMap -->
+	<resultMap id="inBuyApplyResultMap" type="InBuyApply" >
+		<id column="inbaid" property="inbaid" jdbcType="INTEGER" />
+	    <result column="inbacode" property="inbacode" jdbcType="VARCHAR" />
+	    <result column="inbaname" property="inbaname" jdbcType="VARCHAR" />
+	    <result column="busiid" property="busiid" jdbcType="INTEGER" />
+	    <result column="businame" property="businame" jdbcType="VARCHAR" />
+	    <result column="busideptid" property="busideptid" jdbcType="INTEGER" />
+	    <result column="busiorgid" property="busiorgid" jdbcType="INTEGER" />
+	    <result column="inbtid" property="inbtid" jdbcType="INTEGER" />
+	    <result column="inbareason" property="inbareason" jdbcType="VARCHAR" />
+	    <result column="inbadate" property="inbadate" jdbcType="TIMESTAMP" />
+	    <result column="remark" property="remark" jdbcType="VARCHAR" />
+	    <result column="inbastate" property="inbastate" jdbcType="INTEGER" />
+	    <result column="wkexid" property="wkexid" jdbcType="INTEGER" />
+	    <result column="approvalview" property="approvalview" jdbcType="VARCHAR" />
+	    <result column="state" property="state" jdbcType="INTEGER" />
+	    <result column="delflag" property="delflag" jdbcType="INTEGER" />
+	    <result column="optid" property="optid" jdbcType="INTEGER" />
+	    <result column="optname" property="optname" jdbcType="VARCHAR" />
+	    <result column="optdeptid" property="optdeptid" jdbcType="INTEGER" />
+	    <result column="optorgid" property="optorgid" jdbcType="INTEGER" />
+	    <result column="currdate" property="currdate" jdbcType="TIMESTAMP" />
+	    <!-- 关联采购类型子表 -->
+		<association property="inBuyType" javaType="InBuyType" column="inbtid" 
+			select="com.lzf.erp.dao.InBuyTypeDao.queryInBuyTypeByInbtid" >
+		</association>
+		<!-- 关联系(细)表 -->
+		<collection property="inBuyApplyDetail" ofType="InBuyApplyDetail" column="inbaid"
+			select="com.lzf.erp.dao.InBuyApplyDetailDao.queryInBuyApplyDetailByInbaid" >
+		</collection>
+	</resultMap>
+	<!-- 全查inbuyapply表 -->
+	<select id="queryAllInBuyApply" parameterType="Map" resultMap="inBuyApplyResultMap">
+		select
+			ba.inbaid,
+			ba.inbacode,
+			ba.inbaname,
+			ba.busiid,
+			ba.businame,
+			ba.busideptid,
+			ba.busiorgid,
+			ba.inbtid,
+			ba.inbareason,
+			ba.inbadate,
+			ba.remark,
+			ba.inbastate,
+			ba.wkexid,
+			ba.approvalview,
+			ba.state,
+			ba.delflag,
+			ba.optid,
+			ba.optname,
+			ba.optdeptid,
+			ba.optorgid,
+			ba.currdate
+		from
+			inbuyapply ba
+		where
+			ba.delflag=1 and ba.wkexid=0
+			<if test="inBuyApply.inbaname != null and inBuyApply.inbaname != ''">
+				and ba.inbaname like '%${inBuyApply.inbaname}%'
+			</if>
+			<if test="inBuyApply.businame != null and inBuyApply.businame != ''">
+				and ba.businame like '%${inBuyApply.businame}%'
+			</if>
+			<if test="inBuyApply.inbtid != null and inBuyApply.inbtid != ''">
+				and ba.inbtid=#{inBuyApply.inbtid}
+			</if>
+		limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	<!-- 查询inbuyapply表条数 -->
+	<select id="queryInBuyApplyCount" parameterType="Map" resultType="Integer">
+		select count(*) from inbuyapply ba
+			where 
+				ba.delflag=1 and ba.wkexid=0
+				<if test="inBuyApply.inbaname != null and inBuyApply.inbaname != ''">
+					and ba.inbaname like '%${inBuyApply.inbaname}%'
+				</if>
+				<if test="inBuyApply.businame != null and inBuyApply.businame != ''">
+					and ba.businame like '%${inBuyApply.businame}%'
+				</if>
+				<if test="inBuyApply.inbtid != null and inBuyApply.inbtid != ''">
+					and ba.inbtid=#{inBuyApply.inbtid}
+				</if>
+	</select>
+	<!-- 添加inbuyapply表 -->
+	<insert id="addInBuyApply" parameterType="InBuyApply">
+		insert into inbuyapply
+			(inbacode,inbaname,busiid,businame,inbtid,inbareason,inbadate,wkexid,state,delflag,optid,optname,currdate)
+		values
+			(#{inbacode},#{inbaname},#{busiid},#{businame},#{inbtid},#{inbareason},#{inbadate},#{wkexid},#{state},#{delflag},#{optid},#{optname},#{currdate})
+	</insert>
+	<!-- 获取inbaid最大值 -->
+	<select id="getMaxInbaid" resultType="Integer">
+		select max(inbaid) from inbuyapply where delflag=1
+	</select>
+	<!-- 逻辑删除inbuyapply -->
+	<update id="deleteInBuyApply" parameterType="Integer">
+		update inbuyapply set delflag=0 where inbaid=#{inbaid}
+	</update>
+	<!-- 修改inbuyapply -->
+	<update id="updateInBuyApply" parameterType="InBuyApply">
+		update inbuyapply set inbtid=#{inbtid},inbareason=#{inbareason}
+			where inbaid=#{inbaid}
+	</update>
+	<!-- 修改wkexid为1 -->
+	<update id="updateWkexidForSubmit" parameterType="Integer">
+		update inbuyapply set wkexid=1 where inbaid=#{inbaid}
+	</update>
+	<!-- 查询已提交的inbuyapply表数据 -->
+	<select id="querySubmitedInBuyApply" parameterType="Map" resultMap="inBuyApplyResultMap">
+		select
+			ba.inbaid,
+			ba.inbacode,
+			ba.inbaname,
+			ba.busiid,
+			ba.businame,
+			ba.busideptid,
+			ba.busiorgid,
+			ba.inbtid,
+			ba.inbareason,
+			ba.inbadate,
+			ba.remark,
+			ba.inbastate,
+			ba.wkexid,
+			ba.approvalview,
+			ba.state,
+			ba.delflag,
+			ba.optid,
+			ba.optname,
+			ba.optdeptid,
+			ba.optorgid,
+			ba.currdate
+		from
+			inbuyapply ba
+		where
+			ba.delflag=1 and ba.wkexid=1
+			<if test="inbaname != null and inbaname != ''">
+				and ba.inbaname like '%${inbaname}%'
+			</if>
+			<if test="businame != null and businame != ''">
+				and ba.businame like '%${businame}%'
+			</if>
+			<if test="beginDate != null and beginDate != '' and endDate == null or endDate == ''">
+				and ba.inbadate=#{beginDate}
+			</if>
+			<if test="endDate != null and endDate != '' and beginDate == null or beginDate == ''">
+				and ba.inbadate=#{endDate}
+			</if>
+			<if test="beginDate != null and beginDate != '' and endDate != null and endDate != ''">
+				and ba.inbadate between #{beginDate} and #{endDate}
+			</if>
+	</select>
+	<!-- 申请驳回修改inbuyapply表数据 -->
+	<update id="updateInBuyApplyForRejected" parameterType="InBuyApply">
+		update inbuyapply set wkexid=0,approvalview=#{approvalview}
+			where inbaid=#{inbaid}
+	</update>
+	<!-- 申请通过修改inbuyapply表数据 -->
+	<update id="updateInBuyApplyForThrough" parameterType="InBuyApply">
+		update inbuyapply set wkexid=2,approvalview=#{approvalview}
+			where inbaid=#{inbaid}
+	</update>
+	<!-- 查询inbuyapply表数据申请统计用 -->
+	<select id="queryInBuyApplyForStatistical" parameterType="Map" resultMap="inBuyApplyResultMap">
+		select
+			ba.inbaid,
+			ba.inbacode,
+			ba.inbaname,
+			ba.busiid,
+			ba.businame,
+			ba.busideptid,
+			ba.busiorgid,
+			ba.inbtid,
+			ba.inbareason,
+			ba.inbadate,
+			ba.remark,
+			ba.inbastate,
+			ba.wkexid,
+			ba.approvalview,
+			ba.state,
+			ba.delflag,
+			ba.optid,
+			ba.optname,
+			ba.optdeptid,
+			ba.optorgid,
+			ba.currdate
+		from
+			inbuyapply ba
+		where
+			ba.delflag=1
+			<if test="inbaname != null and inbaname != ''">
+				and ba.inbaname like '%${inbaname}%'
+			</if>
+			<if test="businame != null and businame != ''">
+				and ba.businame like '%${businame}%'
+			</if>
+			<if test="inbtid != null and inbtid != ''">
+				and ba.inbtid=#{inbtid}
+			</if>
+			<if test="wkexid != null and wkexid != ''">
+				and ba.wkexid=#{wkexid}
+			</if>
+			<if test="beginDate != null and beginDate != '' and endDate != null and endDate != ''">
+				and ba.inbadate between #{beginDate} and #{endDate}
+			</if>
+		limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	<!-- 查询inbuyapply表总条数申请统计用 -->
+	<select id="queryInBuyApplyCountForStatistical" parameterType="Map" resultType="Integer">
+		select count(*) from inbuyapply ba
+			where 
+				ba.delflag=1
+				<if test="inbaname != null and inbaname != ''">
+				and ba.inbaname like '%${inbaname}%'
+			</if>
+			<if test="businame != null and businame != ''">
+				and ba.businame like '%${businame}%'
+			</if>
+			<if test="inbtid != null and inbtid != ''">
+				and ba.inbtid=#{inbtid}
+			</if>
+			<if test="wkexid != null and wkexid != ''">
+				and ba.wkexid=#{wkexid}
+			</if>
+			<if test="beginDate != null and beginDate != '' and endDate != null and endDate != ''">
+				and ba.inbadate between #{beginDate} and #{endDate}
+			</if>
+	</select>
+	<!-- 查询通过审核、不是直接采购的申请信息 -->
+	<select id="queryInBuyApplyForContract" resultMap="inBuyApplyResultMap">
+		select
+			ba.inbaid,
+			ba.inbacode,
+			ba.inbaname,
+			ba.busiid,
+			ba.businame,
+			ba.busideptid,
+			ba.busiorgid,
+			ba.inbtid,
+			ba.inbareason,
+			ba.inbadate,
+			ba.remark,
+			ba.inbastate,
+			ba.wkexid,
+			ba.approvalview,
+			ba.state,
+			ba.delflag,
+			ba.optid,
+			ba.optname,
+			ba.optdeptid,
+			ba.optorgid,
+			ba.currdate
+		from
+			inbuyapply ba
+		where
+			ba.delflag=1 and ba.inbtid!=1 and ba.wkexid!=0 and ba.wkexid!=1
+	</select>
+</mapper>

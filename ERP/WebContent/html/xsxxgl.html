@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>商品类别</title>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/default/easyui.css"/>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/icon.css"/>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body style="margin: 1px">
+	<!-- 商品类别展示--start -->
+	<table id="dg" title="商品类别" class="easyui-datagrid" fitColumns="true" pagination="true"
+		rownumbers="true" url="../inGoodsCategory/queryAllInGoodsCategory.do"
+		fit="true" toolbar="#tb">
+		<thead>
+			<tr>
+				<th field="cb" checkbox="true" align="center" ></th>
+				<th field="ingcid" width="50px" align="center" hidden="true">商品类别ID</th> 
+				<th field="ingccode" width="50px" align="center">商品类别编码</th> 
+				<th field="ingcname" width="50px" align="center">商品类别名称</th>
+				<th field="optname" width="50px" align="center">操作人</th>
+				<th field="remark" width="50px" align="center">备注</th>
+			</tr>
+		</thead>
+	</table>
+	<!-- 商品类别展示--end -->
+	<!-- 商品类别操作按钮--start -->
+	<div id="tb">
+		<div>
+			<a href="javascript:openInGoodsCategoryAddDialog()" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+			<a href="javascript:openInGoodsCategoryModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
+			<a href="javascript:inGoodsCategoryDelete()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+        </div>
+		<div>&nbsp;商品名称：&nbsp;<input type="text" name="s_ingcname" id="s_ingcname" size="20" onkeydown="if(event.keyCode==13) searchInGoodsCategory()"/>
+			<a href="javascript:searchInGoodsCategory()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	</div>
+	<!-- 商品类别操作按钮--end -->
+	
+	 <!-- 添加商品类别/修改商品类别 dialog (start) -->
+	 <div id="dlg" class="easyui-dialog" style="width: 680px;height: 300px;padding: 10px 20px" closed="true" buttons="#dlg-buttons" data-options="modal:true">
+	     <form id="fm" method="post">
+	     	<table cellspacing="5px">
+				<p><input type="hidden" id="ingcid" name="ingcid" /></p>
+				<tr>
+					<td>商品类别编号：</td>
+		      		<td>
+		      			<input type="text" id="ingccode" name="ingccode" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		      		<td>商品类别名称：</td>
+		      		<td>
+		      			<input type="text" id="ingcname" name="ingcname" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      	</tr>
+		      	<tr></tr>
+		      	<tr></tr>
+				<tr>
+					<td>备注：</td>
+					<td colspan="4">
+				     	<textarea rows="7" cols="50" name="remark" id="remark"></textarea>
+				    </td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	
+	<div id="dlg-buttons">
+	      <a href="javascript:saveInGoodsCategory()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+	      <a href="javascript: closeInGoodsCategoryAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	<!-- 添加商品类别/修改商品类别 dialog (end) -->
+</body>
+<script type="text/javascript">
+	
+	// 点击模糊查询按钮触发事件
+	function searchInGoodsCategory(){
+		var ingcname = $("#s_ingcname").val();
+		$("#dg").datagrid("load",{
+			ingcname:ingcname
+		});
+	}
+	
+	// 定义添加商品类别/修改商品类别的URL
+	var saveInGoodsCategoryUrl = "../inGoodsCategory/saveInGoodsCategory.do";
+	var updateInGoodsCategoryUrl = "../inGoodsCategory/updateInGoodsCategory.do";
+	var currentUrl = "";
+
+	//点击添加按钮触发事件
+	function openInGoodsCategoryAddDialog(){
+		$("#dlg").dialog("open").dialog("setTitle","添加商品类别");
+		$("#ingccode").removeAttr("readonly");
+		$("#ingcname").removeAttr("readonly");
+		currentUrl = saveInGoodsCategoryUrl;
+	}
+	
+	// 点击修改按钮触发事件
+	function openInGoodsCategoryModifyDialog(){
+		var rows = $("#dg").datagrid("getSelections");
+		if(rows.length != 1){
+			$.messager.alert("系统提示","请选择一条需要修改的商品类别！","warning");
+			return;
+		}
+		var row = rows[0];
+		$("#dlg").dialog("open").dialog("setTitle","修改商品类别");
+		$("#fm").form("load",row);
+		$("#ingccode").attr("readonly","readonly");
+		$("#ingcname").attr("readonly","readonly");
+		currentUrl = updateInGoodsCategoryUrl;
+	}
+	
+	// 验证商品类别编号的唯一性
+	$("#ingccode").blur(function(){
+		var ingccode = $("#ingccode").val();
+		if(!/^\w{3,18}$/.test(ingccode)){
+			$.messager.alert("系统提示","商品类别编号不合法！必须3-18位、数字或字母、下划线","warning");
+			return;
+		}
+		$.ajax({
+			type:"post",
+			dataType:"json",
+			data:{
+				ingccode:ingccode
+			},
+			url:"../inGoodsCategory/checkIngccode.do",
+			success:function(data){
+				if(data.hasIGC == "1"){
+					$.messager.alert("系统提示","商品类别编码已存在，请重新输入!","warning");
+				}
+			},
+			error:function(){
+				$.messager.alert("系统提示","系统繁忙","warning");
+			}
+		});
+	});
+	
+	
+	// 验证商品类别名称的唯一性
+	$("#ingcname").blur(function(){
+		var ingcname = $("#ingcname").val();
+		if(!/^\S{3,18}$/.test(ingcname)){
+			$.messager.alert("系统提示","商品类别名称不合法！必须3-18位、汉字、数字或字母、下划线","warning");
+			return;
+		}
+		$.ajax({
+			type:"post",
+			dataType:"json",
+			data:{
+				ingcname:ingcname
+			},
+			url:"../inGoodsCategory/checkIngcname.do",
+			success:function(data){
+				if(data.hasIGC == "1"){
+					$.messager.alert("系统提示","商品类别名称已存在，请重新输入!","warning");
+				}
+			},
+			error:function(){
+				$.messager.alert("系统提示","系统繁忙","warning");
+			}
+		});
+	});
+	
+	// 点击 添加商品类别/修改商品类别 保存按钮触发事件
+	function saveInGoodsCategory(){
+		$("#fm").form("submit",{
+			url:currentUrl,
+			onSubmit:function(){
+				return $(this).form("validate"); 
+			},
+			success:function(data){
+				var data=eval("("+data+")");
+				if(data.res == true){
+					$.messager.alert("系统提示","保存成功");
+					closeInGoodsCategoryAddDialog();
+					$("#dg").datagrid("reload");
+				}else{
+					$.messager.alert("系统提示","<font color=red>"+data.res+"</font>","warning");
+				}
+			},
+			error:function(){
+				$.messager.alert("系统提示","系统繁忙！","warning");
+			}
+		});
+		currentUrl = "";
+	}
+	
+	// 点击 添加商品类别/修改商品类别 关闭按钮触发事件
+	function closeInGoodsCategoryAddDialog(){
+		$("#dlg").dialog("close");
+		$("#fm").form("clear");
+	}
+	
+	// 点击 删除按钮触发事件
+	function inGoodsCategoryDelete(){
+		var rows = $("#dg").datagrid("getSelections");
+		if(rows.length == 0){
+			$.messager.alert("系统提示","请选择需要删除的商品类型！","warning");
+			return;
+		}
+		var ingcids = "";
+		$.each(rows,function(index,row){
+			ingcids += row.ingcid + ",";
+		});
+		$.messager.confirm("删除提示","您确认要删除这<font color=red>"+rows.length+"</font>条数据吗？",
+			function(r){
+				if(r){
+					$.ajax({
+						type:"post",
+						dataType:"json",
+						data:{ingcids:ingcids},
+						url:"../inGoodsCategory/deleteInGoodsCategory.do",
+						success:function(data){
+							if(data.isDel == "1"){
+								$.messager.alert("系统提示","您已成功删除"+data.delRow+"条数据！");
+								$("#dg").datagrid("reload");
+							}else{
+								$.messager.alert("系统提示","删除失败！","warning");
+							}
+						},
+						error:function(){
+							$.messager.alert("系统提示！","系统繁忙！","error");
+						}
+					});
+				}
+		});
+	}
+</script>
+</html>

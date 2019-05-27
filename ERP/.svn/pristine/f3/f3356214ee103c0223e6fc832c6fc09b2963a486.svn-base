@@ -1,0 +1,87 @@
+package com.lzf.erp.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.lzf.erp.model.InBuyOrder;
+
+/**@文件名: InBuyOrderDao.java
+ * @类功能说明: 订单管理  dao层
+ * @作者: YangFan
+ * @Email: 
+ * @日期: 2019年5月20日下午6:38:20
+ * @修改说明:<br> 
+ * <pre>
+ * 	 <li>作者: YangFan</li> 
+ * 	 <li>日期: 2019年5月20日下午6:38:20</li> 
+ *	 <li>内容: </li>
+ * </pre>
+ */
+public interface InBuyOrderDao {
+
+	/**@方法名: findAllInBuyOrder
+	 * @方法说明: 订单管理 分页查询+模糊搜索
+	 * @作者: YangFan
+	 * @邮箱：
+	 * @日期: 2019年5月20日下午6:38:45
+	 * @param map
+	 * @return
+	 * @return: List<InBuyOrder>
+	 */
+	public List<InBuyOrder> findAllInBuyOrder(Map<String, Object> map);
+
+	/**@方法名: findAllInBuyOrderCount
+	 * @方法说明: 订单管理 模糊搜索总条数
+	 * @作者: YangFan
+	 * @邮箱：
+	 * @日期: 2019年5月20日下午6:39:42
+	 * @param map
+	 * @return
+	 * @return: int
+	 */
+	public int findAllInBuyOrderCount(Map<String, Object> map);
+
+	/**@方法名: addInBuyOrder
+	 * @方法说明: 添加订单主表信息
+	 * @作者: YangFan
+	 * @邮箱：
+	 * @日期: 2019年5月21日上午11:21:46
+	 * @param inBuyOrder
+	 * @return
+	 * @return: int
+	 */
+	public int addInBuyOrder(InBuyOrder inBuyOrder);
+
+	/**@方法名: findMaxInboid
+	 * @方法说明: 查找合同表id最大值
+	 * @作者: YangFan
+	 * @邮箱：
+	 * @日期: 2019年5月21日上午11:22:01
+	 * @return
+	 * @return: int
+	 */
+	public int findMaxInboid();
+
+	/**@方法名: updateInBuyOrder
+	 * @方法说明: 修改订单主表信息
+	 * @作者: YangFan
+	 * @邮箱：
+	 * @日期: 2019年5月21日下午1:56:42
+	 * @param inBuyOrder
+	 * @return
+	 * @return: int
+	 */
+	public int updateInBuyOrder(InBuyOrder inBuyOrder);
+
+	/**@方法名: deleteInBuyOrder
+	 * @方法说明: 删除订单表
+	 * @作者: YangFan
+	 * @邮箱：
+	 * @日期: 2019年5月21日下午2:18:01
+	 * @param inbodid
+	 * @return
+	 * @return: int
+	 */
+	public int deleteInBuyOrder(int inbodid);
+
+}

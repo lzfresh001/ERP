@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.AuthDao" >
+	<!-- user的resultMap -->
+	<resultMap id="userResultMap" type="User">
+		<id column="uid" property="uid"/>
+		<result column="uname" property="uname"/>
+		<result column="password" property="password"/>
+		<result column="userType" property="userType"/>
+		<result column="roleId" property="roleId"/>
+		<result column="userDescription" property="userDescription"/>
+		<result column="delflag" property="delflag"/>
+		<result column="currentTime" property="currentTime"/>
+	</resultMap>
+	<!-- role的resultMap -->
+	<resultMap id="roleResultMap" type="Role">
+		<id column="roleId" property="roleId"/>
+		<result column="roleName" property="roleName"/>
+		<result column="authIds" property="authIds"/>
+		<result column="roleDescription" property="roleDescription"/>
+		<result column="delflag" property="delflag"/>
+		<result column="currentTime" property="currentTime"/>
+	</resultMap>
+	<!-- auth的resultMap -->
+	<resultMap id="authResultMap" type="Auth">
+		<id column="authId" property="authId"/>
+		<result column="authName" property="authName"/>
+		<result column="authPath" property="authPath"/>
+		<result column="parentId" property="parentId"/>
+		<result column="authDescription" property="authDescription"/>
+		<result column="state" property="state"/>
+		<result column="iconCls" property="iconCls"/>
+		<result column="delflag" property="delflag"/>
+		<result column="currentTime" property="currentTime"/>
+	</resultMap>
+	<!-- 获取当前用户所有的auth -->
+	<select id="getAuthByparentIdAndAuthIds" parameterType="Map" resultMap="authResultMap">
+		select * from auth where delflag=0 and parentId=#{parentId} and authId in 
+		<foreach collection="authIdList" item="authId" separator="," open="(" close=")">
+			#{authId}
+		</foreach>
+	</select>
+	<!-- 根据parentId获取auth -->
+	<select id="getAuthByParentId" parameterType="Integer" resultMap="authResultMap">
+		select * from auth where delflag=0 and parentId=#{parentId}
+	</select>
+	<!-- 根据authName查询auth表 -->
+	<select id="queryAuthByAuthName" parameterType="String" resultMap="authResultMap">
+		select * from auth where authName=#{authName}
+	</select>
+	<!-- 根据authPath查询auth表 -->
+	<select id="queryAuthByAuthPath" parameterType="String" resultMap="authResultMap">
+		select * from auth where authPath=#{authPath}
+	</select>
+	<!-- 添加auth -->
+	<insert id="addAuth" parameterType="Map">
+		insert into auth(authName,authPath,parentId,authDescription,state)
+			values(#{auth.authName},#{auth.authPath},#{auth.parentId},#{auth.authDescription},#{auth.state})
+	</insert>
+	<!-- 添加子菜单时修改state -->
+	<update id="updateAuthStateToClosed" parameterType="Map">
+		update auth set state='closed' where authId=#{authId}
+	</update>
+	<!-- 修改auth信息 -->
+	<update id="updateAuth" parameterType="Auth">
+		update auth set authDescription=#{authDescription} where authId=#{authId}
+	</update>
+	<!-- 根据parentId逻辑删除auth -->
+	<update id="updateAuthStateByParentId" parameterType="Map">
+		update auth set delflag=1 where parentId=#{parentId}
+	</update>
+	<!-- 根据authId逻辑删除auth -->
+	<update id="updateAuthStateByAuthId" parameterType="Map">
+		update auth set delflag=1 where authId=#{authId}
+	</update>
+</mapper>

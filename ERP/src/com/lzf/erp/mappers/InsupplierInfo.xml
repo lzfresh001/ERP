@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lzf.erp.dao.InsupplierInfoDao">
+	<resultMap type="InsupplierInfo" id="insupplierInfoMap">
+		<id column="insiid" property="insiid"/>
+		<result column="insicode" property="insicode"/>
+		<result column="insiname" property="insiname"/>
+		<result column="inscid" property="inscid"/>
+		<result column="inslid" property="inslid"/>
+		<result column="insaid" property="insaid"/>
+		<result column="insiaddress" property="insiaddress"/>
+		<result column="insiphone" property="insiphone"/>
+		<result column="insilicense" property="insilicense"/>
+		<result column="insipermitlicense" property="insipermitlicense"/>
+		<result column="insilegalman" property="insilegalman"/>
+		<result column="insitaxnum" property="insitaxnum"/>
+		<result column="insibank" property="insibank"/>
+		<result column="insibankaccount" property="insibankaccount"/>
+		<result column="remark" property="remark"/>
+		<result column="state" property="state"/>
+		<result column="delflag" property="delflag"/>
+		<result column="optid" property="optid"/>
+		<result column="optname" property="optname"/>
+		<result column="optdeptid" property="optdeptid"/>
+		<result column="optorgid" property="optorgid"/>
+		<result column="currdate" property="currdate"/>
+		<collection property="insupplierLinkmans" ofType="InsupplierLinkMan" column="insiid" select="com.lzf.erp.dao.InsupplierLinkManDao.findInsupplierLinkmanByInscid"></collection>
+
+	</resultMap>
+	<sql id="exqueryInfo">
+		<if test="s_insiname!=null and s_insiname!=''">
+			and insiname like concat("%",#{s_insiname},"%")
+		</if>
+		<if test="s_insiaddress!=null and s_insiaddress!=''">
+			and insiaddress like concat("%",#{s_insiaddress},"%")
+		</if>
+	</sql>
+	<select id="findAllinsupplierInfo" parameterType="Map" resultMap="insupplierInfoMap">
+		select 
+			insiid,
+			insicode,
+			insiname,
+			inscid,
+			inslid,
+			insaid,
+			insiaddress,
+			insiphone,
+			insilicense,
+			insipermitlicense,
+			insilegalman,
+			insitaxnum,
+			insibank,
+			insibankaccount,
+			remark,
+			state,
+			delflag,
+			optid,
+			optname,
+			optdeptid,
+			optorgid,
+			currdate
+		from 
+			insupplierinfo
+		where
+			delflag=1
+		<include refid="exqueryInfo"></include>
+		limit #{page.start},#{page.rows}
+	</select>
+	<select id="findAllinsupplierInfoCount" parameterType="Map" resultType="int">
+		select
+			count(*)
+		from
+			insupplierinfo
+		where
+			delflag=1
+		<include refid="exqueryInfo"></include>
+	</select>
+	<select id="findMaxId" resultType="int">
+		select
+			max(insiid)
+		from
+			insupplierinfo
+		where
+			delflag=1
+	</select>
+	
+	<select id="findNameById" parameterType="int" resultType="String">
+		select
+			insiname
+		from
+			insupplierinfo
+		where
+			insiid=#{insiid}
+	</select>
+	
+	<select id="queryAllInBuygys" resultMap="insupplierInfoMap">
+		select
+			insiid,
+			insiname
+		from
+			insupplierinfo
+		where
+			delflag=1
+	</select>
+	
+	<insert id="addInsupplierInfo" parameterType="InsupplierInfo">
+		insert into 
+			insupplierinfo(
+				insicode,
+				insiname,
+				inscid,
+				inslid,
+				insaid,
+				insiaddress,
+				insiphone,
+				insilicense,
+				insipermitlicense,
+				insilegalman,
+				insitaxnum,
+				insibank,
+				insibankaccount,
+				remark,
+				state,
+				delflag,
+				optid,
+				optname,
+				optdeptid,
+				optorgid,
+				currdate
+			)
+		values(
+				#{insicode},
+				#{insiname},
+				#{inscid},
+				#{inslid},
+				#{insaid},
+				#{insiaddress},
+				#{insiphone},
+				#{insilicense},
+				#{insipermitlicense},
+				#{insilegalman},
+				#{insitaxnum},
+				#{insibank},
+				#{insibankaccount},
+				#{remark},
+				#{state},
+				#{delflag},
+				#{optid},
+				#{optname},
+				#{optdeptid},
+				#{optorgid},
+				#{currdate}
+		)
+	</insert>
+	<update id="updateInsupplierInfo" parameterType="InsupplierInfo">
+		update
+			insupplierinfo
+		set
+			insicode=#{insicode},
+			insiname=#{insiname},
+			inscid=#{inscid},
+			inslid=#{inslid},
+			insaid=#{insaid},
+			insiaddress=#{insiaddress},
+			insiphone=#{insiphone},
+			insilicense=#{insilicense},
+			insipermitlicense=#{insipermitlicense},
+			insilegalman=#{insilegalman},
+			insitaxnum=#{insitaxnum},
+			insibank=#{insibank},
+			insibankaccount=#{insibankaccount},
+			remark=#{remark}
+		where
+			insiid=#{insiid}
+	</update>
+	<update id="deleteInsupplierInfo" parameterType="int">
+		update
+			insupplierinfo
+		set
+			delflag=0
+		where
+			insiid=#{insiid}
+	</update>
+	
+</mapper>

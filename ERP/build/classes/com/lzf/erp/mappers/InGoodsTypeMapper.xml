@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.InGoodsTypeDao" >
+	<!-- ingoodstype的resultMap -->
+	<resultMap id="inGoodsTypeResultMap" type="InGoodsType" >
+	    <id column="ingtid" property="ingtid" jdbcType="INTEGER" />
+	    <result column="ingtcode" property="ingtcode" jdbcType="VARCHAR" />
+	    <result column="ingtname" property="ingtname" jdbcType="VARCHAR" />
+	    <result column="remark" property="remark" jdbcType="VARCHAR" />
+	    <result column="state" property="state" jdbcType="INTEGER" />
+	    <result column="delflag" property="delflag" jdbcType="INTEGER" />
+	    <result column="optid" property="optid" jdbcType="INTEGER" />
+	    <result column="optname" property="optname" jdbcType="VARCHAR" />
+	    <result column="optdeptid" property="optdeptid" jdbcType="INTEGER" />
+	    <result column="optorgid" property="optorgid" jdbcType="INTEGER" />
+	    <result column="currdate" property="currdate" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<!-- 全查ingoodstype表 -->
+	<select id="queryAllInGoodsType" parameterType="Map" resultMap="inGoodsTypeResultMap">
+		select
+			gt.ingtid,
+			gt.ingtcode,
+			gt.ingtname,
+			gt.remark,
+			gt.state,
+			gt.delflag,
+			gt.optid,
+			gt.optname,
+			gt.optdeptid,
+			gt.optorgid,
+			gt.currdate
+		from
+			ingoodstype gt
+		where
+			gt.delflag=1
+			<if test="ingtname != null and ingtname != ''">
+				and gt.ingtname like '%${ingtname}%'
+			</if>
+		limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	<!-- 根据ingtid查ingoodstype表 -->
+	<select id="queryAllInGoodsTypeByIngtid" parameterType="Integer" resultMap="inGoodsTypeResultMap">
+		select
+			gt.ingtid,
+			gt.ingtcode,
+			gt.ingtname,
+			gt.remark,
+			gt.state,
+			gt.delflag,
+			gt.optid,
+			gt.optname,
+			gt.optdeptid,
+			gt.optorgid,
+			gt.currdate
+		from
+			ingoodstype gt
+		where
+			gt.delflag=1 and gt.ingtid=#{ingtid}
+	</select>
+	<!-- 查询ingoodstype表条数 -->
+	<select id="queryInGoodsTypeCount" parameterType="Map" resultType="Integer">
+		select count(*) from ingoodstype gt
+			where 
+				gt.delflag=1
+				<if test="ingtname != null and ingtname != ''">
+					and gt.ingtname like '%${ingtname}%'
+				</if>
+	</select>
+	<!-- 根据ingtcode查ingoodstype表 -->
+	<select id="queryAllInGoodsTypeByIngtcode" parameterType="String" resultMap="inGoodsTypeResultMap">
+		select
+			gt.ingtid,
+			gt.ingtcode,
+			gt.ingtname,
+			gt.remark,
+			gt.state,
+			gt.delflag,
+			gt.optid,
+			gt.optname,
+			gt.optdeptid,
+			gt.optorgid,
+			gt.currdate
+		from
+			ingoodstype gt
+		where
+			gt.ingtcode=#{ingtcode}
+	</select>
+	<!-- 根据ingtname查ingoodstype表 -->
+	<select id="queryAllInGoodsTypeByIngtname" parameterType="String" resultMap="inGoodsTypeResultMap">
+		select
+			gt.ingtid,
+			gt.ingtcode,
+			gt.ingtname,
+			gt.remark,
+			gt.state,
+			gt.delflag,
+			gt.optid,
+			gt.optname,
+			gt.optdeptid,
+			gt.optorgid,
+			gt.currdate
+		from
+			ingoodstype gt
+		where
+			gt.ingtname=#{ingtname}
+	</select>
+	<!-- 添加ingoodstype表 -->
+	<insert id="addInGoodsType" parameterType="InGoodsType">
+		insert into 
+			ingoodstype
+				(ingtcode,ingtname,remark,state,delflag,optid,optname,optdeptid,optorgid,currdate)
+			values
+				(#{ingtcode},#{ingtname},#{remark},#{state},#{delflag},#{optid},#{optname},#{optdeptid},#{optorgid},#{currdate})
+	</insert>
+	<!-- 修改ingoodstype表  -->
+	<update id="updateInGoodsType" parameterType="InGoodsType">
+		update ingoodstype set remark=#{remark} where ingtid=#{ingtid}
+	</update>
+	<!-- 逻辑删除ingoodstype表 -->
+	<update id="deleteInGoodsType" parameterType="Integer">
+		update ingoodstype set delflag=0 where ingtid=#{ingtid}
+ 	</update>
+</mapper>

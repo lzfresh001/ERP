@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.InGoodsCategoryDao" >
+	<!-- ingoodscategory 的 ResultMap -->
+	<resultMap id="inGoodsCategoryResultMap" type="InGoodsCategory" >
+	    <id column="ingcid" property="ingcid" jdbcType="INTEGER" />
+	    <result column="ingccode" property="ingccode" jdbcType="VARCHAR" />
+	    <result column="ingcname" property="ingcname" jdbcType="VARCHAR" />
+	    <result column="remark" property="remark" jdbcType="VARCHAR" />
+	    <result column="state" property="state" jdbcType="INTEGER" />
+	    <result column="delflag" property="delflag" jdbcType="INTEGER" />
+	    <result column="optid" property="optid" jdbcType="INTEGER" />
+	    <result column="optname" property="optname" jdbcType="VARCHAR" />
+	    <result column="optdeptid" property="optdeptid" jdbcType="INTEGER" />
+	    <result column="optorgid" property="optorgid" jdbcType="INTEGER" />
+	    <result column="currdate" property="currdate" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<!-- 全查ingoodscategory表 -->
+	<select id="queryAllInGoodsCategory" parameterType="Map" resultMap="inGoodsCategoryResultMap">
+		select
+			gc.ingcid,
+			gc.ingccode,
+			gc.ingcname,
+			gc.remark,
+			gc.state,
+			gc.delflag,
+			gc.optid,
+			gc.optname,
+			gc.optdeptid,
+			gc.optorgid,
+			gc.currdate
+		from
+			ingoodscategory gc
+		where
+			gc.delflag=1
+			<if test="ingcname != null and ingcname != ''">
+				and gc.ingcname like '%${ingcname}%'
+			</if>
+		limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	<!-- 根据ingcid查ingoodscategory表 -->
+	<select id="queryAllInGoodsCategoryByIngcid" parameterType="Integer" resultMap="inGoodsCategoryResultMap">
+		select
+			gc.ingcid,
+			gc.ingccode,
+			gc.ingcname,
+			gc.remark,
+			gc.state,
+			gc.delflag,
+			gc.optid,
+			gc.optname,
+			gc.optdeptid,
+			gc.optorgid,
+			gc.currdate
+		from
+			ingoodscategory gc
+		where
+			gc.delflag=1 and gc.ingcid=#{ingcid}
+	</select>
+	<!-- 查询ingoodscategory表的条数 -->
+	<select id="queryInGoodsCategoryCount" parameterType="Map" resultType="Integer">
+		select count(*) from ingoodscategory gc
+			where 
+				gc.delflag=1
+				<if test="ingcname != null and ingcname != ''">
+					and gc.ingcname like '%${ingcname}%'
+				</if>
+	</select>
+	<!-- 根据ingccode查ingoodscategory表 -->
+	<select id="queryInGoodsCategoryByIngccode" parameterType="String" resultMap="inGoodsCategoryResultMap">
+		select
+			gc.ingcid,
+			gc.ingccode,
+			gc.ingcname,
+			gc.remark,
+			gc.state,
+			gc.delflag,
+			gc.optid,
+			gc.optname,
+			gc.optdeptid,
+			gc.optorgid,
+			gc.currdate
+		from
+			ingoodscategory gc
+		where
+			gc.ingccode=#{ingccode}
+	</select>
+	<!-- 根据ingcname查ingoodscategory表 -->
+	<select id="queryInGoodsCategoryByIngcname" parameterType="String" resultMap="inGoodsCategoryResultMap">
+		select
+			gc.ingcid,
+			gc.ingccode,
+			gc.ingcname,
+			gc.remark,
+			gc.state,
+			gc.delflag,
+			gc.optid,
+			gc.optname,
+			gc.optdeptid,
+			gc.optorgid,
+			gc.currdate
+		from
+			ingoodscategory gc
+		where
+			gc.ingcname=#{ingcname}
+	</select>
+	<!-- 添加ingoodscategory表 -->
+	<insert id="addInGoodsCategory" parameterType="InGoodsCategory">
+		insert into 
+			ingoodscategory
+				(ingccode,ingcname,remark,state,delflag,optid,optname,optdeptid,optorgid,currdate)
+			values
+				(#{ingccode},#{ingcname},#{remark},#{state},#{delflag},#{optid},#{optname},#{optdeptid},#{optorgid},#{currdate})
+	</insert>
+	<!-- 修改ingoodscategory表 -->
+	<update id="updateInGoodsCategory" parameterType="InGoodsCategory">
+		update ingoodscategory set remark=#{remark} where ingcid=#{ingcid}
+	</update>
+	<!-- 逻辑删除ingoodscategory表 -->
+	<update id="deleteInGoodsCategory" parameterType="Integer">
+		update ingoodscategory set delflag=0 where ingcid=#{ingcid}
+	</update>
+</mapper>

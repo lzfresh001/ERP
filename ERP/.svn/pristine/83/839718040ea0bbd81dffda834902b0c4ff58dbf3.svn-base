@@ -1,0 +1,106 @@
+package com.lzf.erp.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.lzf.erp.dao.InBuyContractDao;
+import com.lzf.erp.model.InBuyContract;
+import com.lzf.erp.model.InBuyContractDetail;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+/**@文件名: InBuyContractServiceImpl.java
+ * @类功能说明: 合同 管理 service 接口实现类
+ * @作者: YangFan
+ * @Email: 
+ * @日期: 2019年5月20日上午11:44:41
+ * @修改说明:<br> 
+ * <pre>
+ * 	 <li>作者: YangFan</li> 
+ * 	 <li>日期: 2019年5月20日上午11:44:41</li> 
+ *	 <li>内容: </li>
+ * </pre>
+ */
+@Service
+public class InBuyContractServiceImpl implements InBuyContractService {
+
+	@Autowired
+	private InBuyContractDao inBuyContractDao;
+	/**@方法名: findAllInBuyContract
+	 * @方法说明: 合同+明细表查询+模糊搜索+分页
+	 * @作者: YangFan
+	 * @邮箱：
+	 * @日期: 2019年5月20日上午11:45:19
+	 * @param map
+	 * @return
+	 * @return:
+	 */
+	@Override
+	public JSONArray findAllInBuyContract(Map<String, Object> map) {
+		List<InBuyContract> inBuyContracts=inBuyContractDao.findAllInBuyContract(map);
+		JSONArray jsonArray=new JSONArray();
+		for(InBuyContract inBuyContract:inBuyContracts) {
+			JSONObject json=new JSONObject();
+			//主表
+			json.put("inbcid", inBuyContract.getInbcid());
+			json.put("inbccode", inBuyContract.getInbccode());
+			json.put("inbcname", inBuyContract.getInbcname());
+			json.put("insiid", inBuyContract.getBusiid());
+			json.put("insiname", inBuyContract.getInsiname());
+			json.put("busiid", inBuyContract.getBusiid());
+			json.put("businame", inBuyContract.getBusiname());
+			json.put("busideptid", inBuyContract.getBusideptid());
+			json.put("inbcdate", inBuyContract.getInbcdate());
+			json.put("inbccontent", inBuyContract.getInbccontent());
+			json.put("inbtid", inBuyContract.getInbtid());
+			json.put("inbtname", inBuyContract.getInbtname());
+			json.put("inbctotalprice", inBuyContract.getInbctotalprice());
+			json.put("inbcofferprice", inBuyContract.getInbcofferprice());
+			json.put("inbcactualprice", inBuyContract.getInbcactualprice());
+			json.put("inbcadvancemoney", inBuyContract.getInbcadvancemoney());
+			json.put("intwid", inBuyContract.getIntwid());
+			json.put("intwiname", inBuyContract.getIntwiname());
+			json.put("indwid", inBuyContract.getIndwid());
+			json.put("indwname", inBuyContract.getIndwname());
+			json.put("inbcdeliverydate", inBuyContract.getInbcdeliverydate());
+			json.put("inbcdeliveryaddress", inBuyContract.getInbcdeliveryaddress());
+			json.put("remark", inBuyContract.getRemark());
+			json.put("optname", inBuyContract.getOptname());
+			//子表
+			JSONArray childrenArray=new JSONArray();
+			List<InBuyContractDetail> inBuyContractDetails=inBuyContract.getInBuyContractDetails();
+			for(InBuyContractDetail inBuyContractDetail:inBuyContractDetails) {
+				JSONObject child=new JSONObject();
+				child.put("inbcdid", inBuyContractDetail.getInbcdid());
+				child.put("inbaid", inBuyContractDetail.getInbaid());
+				child.put("inbadid", inBuyContractDetail.getInbadid());
+				child.put("inbcid", inBuyContractDetail.getInbcid());
+				child.put("insiid", inBuyContractDetail.getInsiid());
+				child.put("ingiid", inBuyContractDetail.getIngiid());
+				child.put("myprice", inBuyContractDetail.getMyprice());
+				child.put("mycou", inBuyContractDetail.getMycou());
+				child.put("mymoney", inBuyContractDetail.getMymoney());
+				child.put("remark", inBuyContractDetail.getRemark());
+				child.put("ingiid", inBuyContractDetail.getInGoodsInfo().getIngiid());
+				child.put("inginame", inBuyContractDetail.getInGoodsInfo().getInginame());
+
+				childrenArray.add(child);
+				
+			}
+			json.put("inBuyContractDetails", childrenArray);
+			jsonArray.add(json);
+		}
+		return jsonArray;
+	}
+
+	@Override
+	public int findAllInBuyContractCount(Map<String, Object> map) {
+		// TODO Auto-generated method stub
+		return inBuyContractDao.findAllInBuyContractCount();
+	}
+
+}

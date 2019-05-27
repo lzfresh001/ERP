@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.InTransportWayDao" >
+	<!-- InTransportWay的resultMap -->
+	<resultMap id="inTransportWayResultMap" type="InTransportWay" >
+    	<id column="intwid" property="intwid" jdbcType="INTEGER" />
+	    <result column="intwname" property="intwname" jdbcType="VARCHAR" />
+	    <result column="intwcode" property="intwcode" jdbcType="VARCHAR" />
+	    <result column="remark" property="remark" jdbcType="VARCHAR" />
+	    <result column="state" property="state" jdbcType="INTEGER" />
+	    <result column="delflag" property="delflag" jdbcType="INTEGER" />
+	    <result column="optid" property="optid" jdbcType="INTEGER" />
+	    <result column="optname" property="optname" jdbcType="VARCHAR" />
+	    <result column="optdeptid" property="optdeptid" jdbcType="INTEGER" />
+	    <result column="optorgid" property="optorgid" jdbcType="INTEGER" />
+	    <result column="currdate" property="currdate" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<!-- 根据intwid查InTransportWay表 -->
+	<select id="queryInTransportWayByIntwid" parameterType="Integer" resultMap="inTransportWayResultMap">
+		select
+			bt.intwid,
+			bt.intwname,
+			bt.intwcode,
+			bt.remark,
+			bt.state,
+			bt.delflag,
+			bt.optid,
+			bt.optname,
+			bt.optdeptid,
+			bt.optorgid,
+			bt.currdate
+		from
+			intransportway bt
+		where
+			bt.delflag=1 and bt.intwid=#{intwid}
+	</select>
+	<!-- 全查InTransportWay表 -->
+	<select id="queryAllInTransportWay" resultMap="inTransportWayResultMap">
+		select
+			bt.intwid,
+			bt.intwname,
+			bt.intwcode,
+			bt.remark,
+			bt.state,
+			bt.delflag,
+			bt.optid,
+			bt.optname,
+			bt.optdeptid,
+			bt.optorgid,
+			bt.currdate
+		from
+			intransportway bt
+		where
+			bt.delflag=1
+	</select>
+	
+	<sql id="exqueryInTransportWay">
+		<if test="s_intwname!=null and s_intwname!=''">
+			and intwname like concat("%",#{s_intwname},"%")
+		</if>
+	</sql>
+	
+	<select id="findAllInTransportWay" parameterType="Map" resultMap="inTransportWayResultMap">
+		select
+			intwid,
+			intwname,
+			intwcode,
+			remark,
+			state,
+			delflag,
+			optid,
+			optname,
+			optdeptid,
+			optorgid,
+			currdate
+		from 
+			intransportway
+		where
+			delflag=1
+		<include refid="exqueryInTransportWay"></include>
+		limit
+			#{pageBean.start},#{pageBean.rows}	
+			
+	</select>
+	<select id="findAllInTransportWayCount" parameterType="Map" resultType="int">
+		select
+			count(*)
+		from
+			intransportway
+		where
+			delflag=1
+		<include refid="exqueryInTransportWay"></include>
+	</select>
+	
+	<select id="findInTransportWayByCode" parameterType="String" resultType="int">
+		select 
+			count(*)
+		from
+			intransportway
+		where
+			intwcode=#{intwcode}
+	</select>
+	
+	<select id="findInTransportWayByName" parameterType="String" resultType="int">
+		select 
+			count(*)
+		from
+			intransportway
+		where
+			intwname=#{intwname}
+	</select>
+	
+	<select id="findNameById" parameterType="int" resultType="String">
+		select
+			intwname
+		from
+			intransportway
+		where
+			intwid=#{intwid}
+			
+	</select>
+	
+	<select id="findInTransportWayList" resultMap="inTransportWayResultMap">
+		select
+			intwid,
+			intwcode,
+			intwname,
+			remark,
+			state,
+			delflag,
+			optid,
+			optname,
+			optdeptid,
+			optorgid,
+			currdate
+		from 
+			intransportway
+		where
+			delflag=1
+	</select>
+	
+	<insert id="addInTransportWay" parameterType="InTransportWay">
+		insert into 
+			intransportway(
+				intwcode,
+				intwname,
+				remark,
+				state,
+				delflag,
+				optid,
+				optname,
+				optdeptid,
+				optorgid,
+				currdate
+			)
+		values(
+				#{intwcode},
+				#{intwname},
+				#{remark},
+				1,
+				1,
+				#{optid},
+				#{optname},
+				#{optdeptid},
+				1,
+				now()
+		)
+	</insert>
+	<update id="updateInTransportWay" parameterType="InTransportWay">
+		update 
+			intransportway
+		set
+			intwcode=#{intwcode},
+			intwname=#{intwname},
+			remark=#{remark}
+		where
+			intwid=#{intwid}
+	</update>
+	<delete id="deleteInTransportWayById" parameterType="String">
+		update
+			intransportway
+		set
+			delflag=0
+		where
+			intwid=#{intwid}
+	</delete>
+</mapper>

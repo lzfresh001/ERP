@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.WorkBookDetailDao" >
+	<!-- workbookdetail的resultMap -->
+	<resultMap id="workBookDetailResultMap" type="WorkBookDetail">
+		<id column="wbdId" property="wbdId"/>
+		<result column="wid" property="wid"/>
+		<result column="wbdName" property="wbdName"/>
+		<result column="remark" property="remark"/>
+		<result column="delflag" property="delflag"/>
+		<result column="currentTime" property="currentTime"/>
+		<result column="updateTime" property="updateTime"/>
+		<result column="optionPerson" property="optionPerson"/>
+	</resultMap>
+	<!-- 全查workbookdetail表 -->
+	<select id="queryAllWorkBookDetail" parameterType="Integer" resultMap="workBookDetailResultMap">
+		select
+			wbd.wbdId,
+			wbd.wid,
+			wbd.wbdName,
+			wbd.remark,
+			wbd.delflag,
+			wbd.currentTime,
+			wbd.updateTime,
+			wbd.optionPerson
+		from
+			workbookdetail wbd
+		where
+			wbd.delflag=1 and wbd.wid=#{wid}
+	</select>
+	<!-- 添加workbookdetail表 -->
+	<insert id="addWorkBookDetail" parameterType="WorkBookDetail">
+		insert into workbookdetail(wid,wbdName,remark,optionPerson)
+			values(#{wid},#{wbdName},#{remark},#{optionPerson})
+	</insert>
+	<!-- 逻辑删除workbookdetail表Bywid -->
+	<update id="deleteWorkBookDetail" parameterType="Integer">
+		update workbookdetail set delflag=0 where wid=#{wid}
+	</update>
+	<!-- 修改workbookdetail表 -->
+	<update id="updateWorkBookDetail" parameterType="WorkBookDetail">
+		update workbookdetail set wbdName=#{wbdName},remark=#{remark},updateTime=#{updateTime}
+			where wbdId=#{wbdId}
+	</update>
+	<!-- 根据wbdid逻辑删除workbookdetail表 -->
+	<update id="deleteWorkBookDetailByWbdid" parameterType="Integer">
+		update workbookdetail set delflag=0 where wbdid=#{wbdid}
+	</update>
+</mapper>

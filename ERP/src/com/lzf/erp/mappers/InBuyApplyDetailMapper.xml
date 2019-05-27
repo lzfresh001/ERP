@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.InBuyApplyDetailDao" >
+	<!-- inbuyapplydetail的resultMap -->
+	<resultMap id="inBuyApplyDetailResultMap" type="InBuyApplyDetail" >
+   	    <id column="inbadid" property="inbadid" jdbcType="INTEGER" />
+	    <result column="inbaid" property="inbaid" jdbcType="INTEGER" />
+	    <result column="ingiid" property="ingiid" jdbcType="INTEGER" />
+	    <result column="mycou" property="mycou" jdbcType="INTEGER" />
+	    <result column="myprice" property="myprice" jdbcType="DOUBLE" />
+	    <result column="mymoney" property="mymoney" jdbcType="DOUBLE" />
+	    <result column="usecou" property="usecou" jdbcType="INTEGER" />
+	    <result column="taxprice" property="taxprice" jdbcType="DOUBLE" />
+	    <result column="taxmoney" property="taxmoney" jdbcType="DOUBLE" />
+	    <result column="invoicesmoney" property="invoicesmoney" jdbcType="DOUBLE" />
+	    <result column="paymoney" property="paymoney" jdbcType="DOUBLE" />
+	    <result column="remark" property="remark" jdbcType="VARCHAR" />
+	    <result column="state" property="state" jdbcType="INTEGER" />
+	    <result column="delflag" property="delflag" jdbcType="INTEGER" />
+	    <!-- 关联物品信息子表 -->
+		<association property="inGoodsInfo" javaType="InGoodsInfo" column="ingiid" 
+			select="com.lzf.erp.dao.InGoodsInfoDao.queryInGoodsInfoByIngiid" >
+		</association>
+	</resultMap>
+	<!-- 根据inbaid查询inbuyapplydetail表 -->
+	<select id="queryInBuyApplyDetailByInbaid" parameterType="Integer" resultMap="inBuyApplyDetailResultMap">
+		select
+			bad.inbadid,
+			bad.inbaid,
+			bad.ingiid,
+			bad.mycou,
+			bad.myprice,
+			bad.mymoney,
+			bad.usecou,
+			bad.taxprice,
+			bad.taxmoney,
+			bad.invoicesmoney,
+			bad.paymoney,
+			bad.remark,
+			bad.state,
+			bad.delflag
+		from
+			inbuyapplydetail bad
+		where
+			bad.delflag=1 and bad.inbaid=#{inbaid} and state=1
+	</select>
+	<!-- 添加inbuyapplydetail表 -->
+	<insert id="addInBuyApplyDetail" parameterType="InBuyApplyDetail">
+		insert into inbuyapplydetail
+			(inbaid,ingiid,mycou,myprice,mymoney,state,delflag)
+		values
+			(#{inbaid},#{ingiid},#{mycou},#{myprice},#{mymoney},1,#{delflag})
+	</insert>
+	<!-- 根据inbaid逻辑删除inbuyapplydetail -->
+	<update id="deleteInBuyApplyDetailByInbaid" parameterType="Integer">
+		update inbuyapplydetail set delflag=0 where inbaid=#{inbaid}
+	</update>
+	<!-- 根据inbadid逻辑删除inbuyapplydetail -->
+	<update id="deleteInBuyApplyDetailByInbadid" parameterType="Integer">
+		update inbuyapplydetail set delflag=0 where inbadid=#{inbadid}
+	</update>
+	<!-- 修改inbuyapplydetail -->
+	<update id="updateInBuyApplyDetail" parameterType="InBuyApplyDetail">
+		update inbuyapplydetail set 
+			mycou=#{mycou},myprice=#{myprice},mymoney=#{mymoney},remark=#{remark}
+		where
+			inbadid=#{inbadid}
+	</update>
+	<!--生成合同后 对 state进行修改 -->
+	<update id="updateState" parameterType="int">
+		update inbuyapplydetail set
+			state=0
+		where
+			inbadid=#{inbadid}
+	</update>
+	<select id="findNoContract" parameterType="int" resultType="int">
+		select count(*) from inbuyapplydetail where delflag=1 and inbaid=#{inbaid} and state=1
+	</select>
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lzf.erp.dao.InsupplierLinkManDao">
+	<resultMap type="InsupplierLinkMan" id="insupplierLinkMan">
+		<id column="inslmid" property="inslmid"/>
+		<result column="inslmcode" property="inslmcode"/>
+		<result column="insiid" property="insiid"/>
+		<result column="inslmname" property="inslmname"/>
+		<result column="inslmphone" property="inslmphone"/>
+		<result column="remark" property="remark"/>
+		<result column="state" property="state"/>
+		<result column="delflag" property="delflag"/>
+	</resultMap>
+	<select id="findInsupplierLinkmanByInscid" parameterType="int" resultMap="insupplierLinkMan">
+		select
+			inslmid,
+			inslmcode,
+			insiid,
+			inslmname,
+			inslmphone,
+			remark,
+			state
+		from
+			insupplierlinkman
+		where
+			delflag=1
+		and
+			insiid=#{insiid}
+	</select>
+	<insert id="addInsupplierLinkMan" parameterType="InsupplierLinkMan">
+		insert into
+			insupplierlinkman(
+				inslmcode,
+				insiid,
+				inslmname,
+				inslmphone,
+				remark,
+				state,
+				delflag
+			)
+		values(
+				#{inslmcode},
+				#{insiid},
+				#{inslmname},
+				#{inslmphone},
+				#{remark},
+				#{state},
+				#{delflag}
+		)
+	</insert>
+	<delete id="deleteInsupplierLinkManByInsiid" parameterType="int">
+		delete from
+			insupplierlinkman
+		where
+			insiid=#{insiid}
+	</delete>
+	
+	<update id="deleteInsupplierLinkMan" parameterType="int">
+		update
+			insupplierlinkman
+		set
+			delflag=0
+		where
+			insiid=#{insiid}
+	</update>
+</mapper>

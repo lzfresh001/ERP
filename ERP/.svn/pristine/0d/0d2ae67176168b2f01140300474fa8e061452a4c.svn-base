@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.InBuyOrderDao" >
+	<!-- inbuyapply的resultMap -->
+	<resultMap id="inBuyOrderResultMap" type="InBuyOrder" >
+		<id column="inboid" property="inboid" />
+	    <result column="inbocode" property="inbocode" />
+	    <result column="inboname" property="inboname" />
+	    <result column="insiid" property="insiid" />
+	    <result column="busiid" property="busiid"/>
+	    <result column="busideptid" property="busideptid"/>
+	    <result column="busiorgid" property="busiorgid"/>
+	    <result column="inbodate" property="inbodate"/>
+	    <result column="inbototalprice" property="inbototalprice"/>
+	    <result column="inboofferprice" property="inboofferprice"/>
+	    <result column="inboactualprice" property="inboactualprice"/>
+	    <result column="intwid" property="intwid" />
+	    <result column="indwid" property="indwid" />
+	    <result column="inbodeliverydate" property="inbodeliverydate"/>
+	    <result column="inbodeliveryaddress" property="inbodeliveryaddress"/>
+	    <result column="inbostate" property="inbostate"/>
+	    <result column="inbopaystate" property="inbopaystate"/>
+	    <result column="inbobillstate" property="inbobillstate"/>
+	    <result column="remark" property="remark"/>
+	    <result column="wkexid" property="wkexid"/>
+	    <result column="approvalview" property="approvalview"/>
+	    <result column="state" property="state"/>
+	    <result column="delflag" property="delflag"/>
+	    <result column="optid" property="optid"/>
+	    <result column="optname" property="optname"/>
+	    <result column="optdeptid" property="optdeptid"/>
+	    <result column="optorgid" property="optorgid"/>
+	    <result column="currdate" property="currdate"/>
+		<!--关联供应商表  -->
+		<association property="insiname" javaType="String" column="insiid" 
+			select="com.lzf.erp.dao.InsupplierInfoDao.findNameById" >
+		</association>
+		<!--关联运输方式表  -->
+		<association property="intwiname" javaType="String" column="intwid" 
+			select="com.lzf.erp.dao.InTransportWayDao.findNameById" >
+		</association>
+		<!--关联交货方式表  -->
+		<association property="indwname" javaType="String" column="indwid" 
+			select="com.lzf.erp.dao.InDeliveryWayDao.findNameById" >
+		</association>
+		<!-- 关联系(细)表 -->
+		<collection property="inBuyOrderDetails" ofType="InBuyOrderDetail" column="inboid"
+			select="com.lzf.erp.dao.InBuyOrderDetailDao.queryInBuyOrderDetailByInsiid" >
+		</collection>
+	</resultMap>
+	<!-- 全查inbuyapply表 -->
+	<select id="findAllInBuyOrder" parameterType="Map" resultMap="inBuyOrderResultMap">
+		select
+			ibt.inboid,
+			ibt.inbocode,
+			ibt.inboname,
+			ibt.insiid,
+			ibt.busiid,
+			ibt.businame,
+			ibt.busideptid,
+			ibt.busiorgid,
+			ibt.inbodate,
+			ibt.inbototalprice,
+			ibt.inboofferprice,
+			ibt.inboactualprice,
+			ibt.intwid,
+			ibt.indwid,
+			ibt.inbodeliverydate,
+			ibt.inbodeliveryaddress,
+			ibt.inbostate,
+			ibt.inbopaystate,
+			ibt.inbobillstate,
+			ibt.remark,
+			ibt.wkexid,
+			ibt.approvalview,
+			ibt.state,
+			ibt.delflag,
+			ibt.optid,
+			ibt.optname,
+			ibt.optdeptid,
+			ibt.optorgid,
+			ibt.currdate
+		from
+			inbuyorder ibt
+		where
+			ibt.delflag=1
+			<if test="s_inboname != bull and s_inboname != ''">
+				and ibt.inboname like '%${s_inboname}%'
+			</if>
+			<if test="s_businame != bull and s_businame != ''">
+				and ibt.businame like '%${s_businame}%'
+			</if>
+			
+		limit #{page.start},#{page.rows}
+	</select>
+	<!-- 查询inbuyapply表条数 -->
+	<select id="findAllInBuyOrderCount" parameterType="Map" resultType="Integer">
+		select count(*) from inbuyorder ibt
+			where 
+				ibt.delflag=1
+				<if test="s_inboname != bull and s_inboname != ''">
+					and ibt.inboname like '%${s_inboname}%'
+				</if>
+				<if test="s_businame != bull and s_businame != ''">
+					and ibt.businame like '%${s_businame}%'
+				</if>
+				
+	</select>
+	
+	<select id="findMaxInboid" resultType="int">
+		select max(inboid) from inbuyorder
+	</select>
+	
+	<insert id="addInBuyOrder" parameterType="InBuyOrder">
+		insert into
+			inbuyorder(
+				inbocode,
+				inboname,
+				insiid,
+				busiid,
+				businame,
+				busideptid,
+				busiorgid,
+				inbodate,
+				inbototalprice,
+				inboofferprice,
+				inboactualprice,
+				intwid,
+				indwid,
+				inbodeliverydate,
+				inbodeliveryaddress,
+				inbostate,
+				inbopaystate,
+				inbobillstate,
+				remark,
+				wkexid,
+				approvalview,
+				state,
+				delflag,
+				optid,
+				optname,
+				optdeptid,
+				optorgid,
+				currdate
+			)
+		values(
+				#{inbocode},
+				#{inboname},
+				#{insiid},
+				#{busiid},
+				#{businame},
+				#{busideptid},
+				#{busiorgid},
+				now(),
+				#{inbototalprice},
+				#{inboofferprice},
+				#{inboactualprice},
+				#{intwid},
+				#{indwid},
+				#{inbodeliverydate},
+				#{inbodeliveryaddress},
+				#{inbostate},
+				#{inbopaystate},
+				#{inbobillstate},
+				#{remark},
+				4,
+				#{approvalview},
+				0,
+				1,
+				#{optid},
+				#{optname},
+				#{optdeptid},
+				1,
+				now()
+			)
+	</insert>
+	<update id="updateInBuyOrder" parameterType="InBuyOrder">
+		update
+			inbuyorder
+		set
+			inbocode=#{inbocode},
+			inboname=#{inboname},
+			remark=#{remark}
+		where
+			inboid=#{inboid}
+	</update>
+	<update id="deleteInBuyOrder" parameterType="int">
+		update
+			inbuyorder
+		set
+			delflag=0
+		where
+			inboid=#{inboid}
+	</update>
+	<!-- 查询inbuyorder用于订单统计 -->
+	<select id="queryInBuyOrderForStatistics" resultMap="inBuyOrderResultMap">
+		select
+			ibt.inboid,
+			ibt.inbocode,
+			ibt.inboname,
+			ibt.insiid,
+			ibt.busiid,
+			ibt.businame,
+			ibt.busideptid,
+			ibt.busiorgid,
+			ibt.inbodate,
+			ibt.inbototalprice,
+			ibt.inboofferprice,
+			ibt.inboactualprice,
+			ibt.intwid,
+			ibt.indwid,
+			ibt.inbodeliverydate,
+			ibt.inbodeliveryaddress,
+			ibt.inbostate,
+			ibt.inbopaystate,
+			ibt.inbobillstate,
+			ibt.remark,
+			ibt.wkexid,
+			ibt.approvalview,
+			ibt.state,
+			ibt.delflag,
+			ibt.optid,
+			ibt.optname,
+			ibt.optdeptid,
+			ibt.optorgid,
+			ibt.currdate
+		from
+			inbuyorder ibt
+		where
+			ibt.delflag=1 and ibt.wkexid!=0 and ibt.wkexid!=1 and ibt.wkexid!=2
+	</select>
+</mapper>

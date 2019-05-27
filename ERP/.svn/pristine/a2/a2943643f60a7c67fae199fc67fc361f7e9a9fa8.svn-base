@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.InGoodsInfoDao" >
+	<!-- ingoodsinfo的resultMap -->
+	<resultMap id="inGoodsInfoResultMap" type="InGoodsInfo" >
+		<id column="ingiid" property="ingiid" jdbcType="INTEGER" />
+	    <result column="ingicode" property="ingicode" jdbcType="VARCHAR" />
+	    <result column="inginame" property="inginame" jdbcType="VARCHAR" />
+	    <result column="ingcid" property="ingcid" jdbcType="INTEGER" />
+	    <result column="ingtid" property="ingtid" jdbcType="INTEGER" />
+	    <result column="ingpid" property="ingpid" jdbcType="INTEGER" />
+	    <result column="ingiformat" property="ingiformat" jdbcType="VARCHAR" />
+	    <result column="ingimodel" property="ingimodel" jdbcType="VARCHAR" />
+	    <result column="ingilicensenum" property="ingilicensenum" jdbcType="VARCHAR" />
+	    <result column="ingishelflife" property="ingishelflife" jdbcType="INTEGER" />
+	    <result column="ingideptidexclusive" property="ingideptidexclusive" jdbcType="INTEGER" />
+	    <result column="ingiexplosive" property="ingiexplosive" jdbcType="INTEGER" />
+	    <result column="ingitoxic" property="ingitoxic" jdbcType="INTEGER" />
+	    <result column="ingicorrosion" property="ingicorrosion" jdbcType="INTEGER" />
+	    <result column="ingifragile" property="ingifragile" jdbcType="INTEGER" />
+	    <result column="ingustockid" property="ingustockid" jdbcType="INTEGER" />
+	    <result column="ingusaleid" property="ingusaleid" jdbcType="INTEGER" />
+	    <result column="ingusplitid" property="ingusplitid" jdbcType="INTEGER" />
+	    <result column="ingisalescale" property="ingisalescale" jdbcType="INTEGER" />
+	    <result column="ingisplitcale" property="ingisplitcale" jdbcType="INTEGER" />
+	    <result column="ingiishandle" property="ingiishandle" jdbcType="INTEGER" />
+	    <result column="ingibarcodecategory" property="ingibarcodecategory" jdbcType="INTEGER" />
+	    <result column="remark" property="remark" jdbcType="VARCHAR" />
+	    <result column="state" property="state" jdbcType="INTEGER" />
+	    <result column="delflag" property="delflag" jdbcType="INTEGER" />
+	    <result column="stopflag" property="stopflag" jdbcType="INTEGER" />
+	    <result column="optid" property="optid" jdbcType="INTEGER" />
+	    <result column="optname" property="optname" jdbcType="VARCHAR" />
+	    <result column="optdeptid" property="optdeptid" jdbcType="INTEGER" />
+	    <result column="optorgid" property="optorgid" jdbcType="INTEGER" />
+	    <result column="currdate" property="currdate" jdbcType="TIMESTAMP" />
+	    <!-- 关联ingoodscategory -->
+	    <association property="inGoodsCategory" javaType="InGoodsCategory" column="ingcid" 
+			select="com.lzf.erp.dao.InGoodsCategoryDao.queryAllInGoodsCategoryByIngcid">
+		</association>
+	    <!-- 关联ingoodstype -->
+	    <association property="inGoodsType" javaType="InGoodsType" column="ingtid" 
+			select="com.lzf.erp.dao.InGoodsTypeDao.queryAllInGoodsTypeByIngtid">
+		</association>
+	    <!-- 关联ingoodsproducer -->
+	    <association property="inGoodsProducer" javaType="InGoodsProducer" column="ingpid" 
+			select="com.lzf.erp.dao.InGoodsProducerDao.queryAllInGoodsProducerByIngpid">
+		</association>
+	</resultMap>
+	<!-- 全查ingoodsinfo表 -->
+	<select id="queryAllInGoodsInfo" parameterType="Map" resultMap="inGoodsInfoResultMap">
+		select 
+			gi.ingiid,
+			gi.ingicode,
+			gi.inginame,
+			gi.ingcid,
+			gi.ingtid,
+			gi.ingpid,
+			gi.ingiformat,
+			gi.ingimodel,
+			gi.ingilicensenum,
+			gi.ingishelflife,
+			gi.ingideptidexclusive,
+			gi.ingiexplosive,
+			gi.ingitoxic,
+			gi.ingicorrosion,
+			gi.ingifragile,
+			gi.ingustockid,
+			gi.ingusaleid,
+			gi.ingusplitid,
+			gi.ingisalescale,
+			gi.ingisplitcale,
+			gi.ingiishandle,
+			gi.ingibarcodecategory,
+			gi.remark,
+			gi.state,
+			gi.delflag,
+			gi.stopflag,
+			gi.optid,
+			gi.optname,
+			gi.optdeptid,
+			gi.optorgid,
+			gi.currdate
+		from 
+			ingoodsinfo gi
+		where 
+			gi.delflag=1
+			<if test="goodsInfo.inginame != null and goodsInfo.inginame != ''">
+				and gi.inginame like '%${goodsInfo.inginame}%'
+			</if>
+			<if test="goodsInfo.ingishelflife != null and goodsInfo.ingishelflife != ''">
+				and gi.ingishelflife between 0 and #{goodsInfo.ingishelflife}
+			</if>
+		limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	<!-- 查询ingoodsinfo的总条数 -->
+	<select id="queryAllInGoodsInfoCount" parameterType="Map" resultType="Integer">
+		select count(*) from ingoodsinfo gi
+			where 
+				gi.delflag=1
+				<if test="goodsInfo.inginame != null and goodsInfo.inginame != ''">
+					and gi.inginame like '%${goodsInfo.inginame}%'
+				</if>
+				<if test="goodsInfo.ingishelflife != null and goodsInfo.ingishelflife != ''">
+					and gi.ingishelflife between 0 and #{goodsInfo.ingishelflife}
+				</if>
+	</select>
+	<!-- 根据ingicode查ingoodsinfo表 -->
+	<select id="queryInGoodsInfoByIngicode" parameterType="String" resultMap="inGoodsInfoResultMap">
+		select 
+			gi.ingiid,
+			gi.ingicode,
+			gi.inginame,
+			gi.ingcid,
+			gi.ingtid,
+			gi.ingpid,
+			gi.ingiformat,
+			gi.ingimodel,
+			gi.ingilicensenum,
+			gi.ingishelflife,
+			gi.ingideptidexclusive,
+			gi.ingiexplosive,
+			gi.ingitoxic,
+			gi.ingicorrosion,
+			gi.ingifragile,
+			gi.ingustockid,
+			gi.ingusaleid,
+			gi.ingusplitid,
+			gi.ingisalescale,
+			gi.ingisplitcale,
+			gi.ingiishandle,
+			gi.ingibarcodecategory,
+			gi.remark,
+			gi.state,
+			gi.delflag,
+			gi.stopflag,
+			gi.optid,
+			gi.optname,
+			gi.optdeptid,
+			gi.optorgid,
+			gi.currdate
+		from 
+			ingoodsinfo gi
+		where 
+			gi.delflag=1 and gi.ingicode=#{ingicode}
+	</select>
+	<!-- 根据inginame查ingoodsinfo表 -->
+	<select id="queryInGoodsInfoByInginame" parameterType="String" resultMap="inGoodsInfoResultMap">
+		select 
+			gi.ingiid,
+			gi.ingicode,
+			gi.inginame,
+			gi.ingcid,
+			gi.ingtid,
+			gi.ingpid,
+			gi.ingiformat,
+			gi.ingimodel,
+			gi.ingilicensenum,
+			gi.ingishelflife,
+			gi.ingideptidexclusive,
+			gi.ingiexplosive,
+			gi.ingitoxic,
+			gi.ingicorrosion,
+			gi.ingifragile,
+			gi.ingustockid,
+			gi.ingusaleid,
+			gi.ingusplitid,
+			gi.ingisalescale,
+			gi.ingisplitcale,
+			gi.ingiishandle,
+			gi.ingibarcodecategory,
+			gi.remark,
+			gi.state,
+			gi.delflag,
+			gi.stopflag,
+			gi.optid,
+			gi.optname,
+			gi.optdeptid,
+			gi.optorgid,
+			gi.currdate
+		from 
+			ingoodsinfo gi
+		where 
+			gi.delflag=1 and gi.inginame=#{inginame}
+	</select>
+	<!-- 添加ingoodsinfo表 -->
+	<insert id="addInGoodsInfo" parameterType="InGoodsInfo">
+		insert into ingoodsinfo
+			(ingicode,inginame,ingcid,ingtid,ingpid,ingiformat,ingilicensenum,
+			ingishelflife,remark,delflag,optid,optname,currdate)
+		values
+			(#{ingicode},#{inginame},#{ingcid},#{ingtid},#{ingpid},#{ingiformat},#{ingilicensenum},
+			#{ingishelflife},#{remark},#{delflag},#{optid},#{optname},#{currdate})
+	</insert>
+	<!-- 修改ingoodsinfo表 -->
+	<update id="updateInGoodsInfo" parameterType="InGoodsInfo">
+		update ingoodsinfo set 
+			ingcid=#{ingcid},
+			ingtid=#{ingtid},
+			ingpid=#{ingpid},
+			ingiformat=#{ingiformat},
+			ingilicensenum=#{ingilicensenum},
+			ingishelflife=#{ingishelflife},
+			remark=#{remark}
+		where
+			ingiid=#{ingiid}
+	</update>
+	<!-- 逻辑删除商品信息 -->
+	<update id="deleteInGoodsInfo" parameterType="Integer">
+		update ingoodsinfo set delflag=0 where ingiid=#{ingiid}
+	</update>
+	<!-- 根据ingiid查询ingoodsinfo表 -->
+	<select id="queryInGoodsInfoByIngiid" parameterType="Integer" resultMap="inGoodsInfoResultMap">
+		select 
+			gi.ingiid,
+			gi.ingicode,
+			gi.inginame,
+			gi.ingcid,
+			gi.ingtid,
+			gi.ingpid,
+			gi.ingiformat,
+			gi.ingimodel,
+			gi.ingilicensenum,
+			gi.ingishelflife,
+			gi.ingideptidexclusive,
+			gi.ingiexplosive,
+			gi.ingitoxic,
+			gi.ingicorrosion,
+			gi.ingifragile,
+			gi.ingustockid,
+			gi.ingusaleid,
+			gi.ingusplitid,
+			gi.ingisalescale,
+			gi.ingisplitcale,
+			gi.ingiishandle,
+			gi.ingibarcodecategory,
+			gi.remark,
+			gi.state,
+			gi.delflag,
+			gi.stopflag,
+			gi.optid,
+			gi.optname,
+			gi.optdeptid,
+			gi.optorgid,
+			gi.currdate
+		from 
+			ingoodsinfo gi
+		where 
+			gi.delflag=1 and gi.ingiid=#{ingiid}
+	</select>
+	<!-- 查询ingoodsinfo表给IBAD -->
+	<select id="queryInGoodsInfoForIBAD" resultMap="inGoodsInfoResultMap">
+		select 
+			gi.ingiid,
+			gi.ingicode,
+			gi.inginame,
+			gi.ingcid,
+			gi.ingtid,
+			gi.ingpid,
+			gi.ingiformat,
+			gi.ingimodel,
+			gi.ingilicensenum,
+			gi.ingishelflife,
+			gi.ingideptidexclusive,
+			gi.ingiexplosive,
+			gi.ingitoxic,
+			gi.ingicorrosion,
+			gi.ingifragile,
+			gi.ingustockid,
+			gi.ingusaleid,
+			gi.ingusplitid,
+			gi.ingisalescale,
+			gi.ingisplitcale,
+			gi.ingiishandle,
+			gi.ingibarcodecategory,
+			gi.remark,
+			gi.state,
+			gi.delflag,
+			gi.stopflag,
+			gi.optid,
+			gi.optname,
+			gi.optdeptid,
+			gi.optorgid,
+			gi.currdate
+		from 
+			ingoodsinfo gi
+		where 
+			gi.delflag=1
+	</select>
+</mapper>

@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.InBuyContractDao" >
+	<!-- inbuyapply的resultMap -->
+	<resultMap id="inBuyContractResultMap" type="InBuyContract" >
+		<id column="inbcid" property="inbcid" />
+	    <result column="inbccode" property="inbccode" />
+	    <result column="inbcname" property="inbcname" />
+	    <result column="insiid" property="insiid" />
+	    <result column="busiid" property="busiid"/>
+	    <result column="busideptid" property="busideptid"/>
+	    <result column="busiorgid" property="busiorgid"/>
+	    <result column="inbcdate" property="inbcdate"/>
+	    <result column="inbccontent" property="inbccontent"/>
+	    <result column="inbtid" property="inbtid" />
+	    <result column="inbctotalprice" property="inbctotalprice"/>
+	    <result column="inbcofferprice" property="inbcofferprice"/>
+	    <result column="inbcactualprice" property="inbcactualprice"/>
+	    <result column="inbcadvancemoney" property="inbcadvancemoney"/>
+	    <result column="intwid" property="intwid" />
+	    <result column="indwid" property="indwid" />
+	    <result column="inbcdeliverydate" property="inbcdeliverydate"/>
+	    <result column="inbcdeliveryaddress" property="inbcdeliveryaddress"/>
+	    <result column="inbcstate" property="inbcstate"/>
+	    <result column="inbcpaystate" property="inbcpaystate"/>
+	    <result column="inbcbillstate" property="inbcbillstate"/>
+	    <result column="remark" property="remark"/>
+	    <result column="wkexid" property="wkexid"/>
+	    <result column="approvalview" property="approvalview"/>
+	    <result column="state" property="state"/>
+	    <result column="delflag" property="delflag"/>
+	    <result column="optid" property="optid"/>
+	    <result column="optname" property="optname"/>
+	    <result column="optdeptid" property="optdeptid"/>
+	    <result column="optorgid" property="optorgid"/>
+	    <result column="currdate" property="currdate"/>
+	    <!-- 关联采购类型子表 -->
+		<association property="inbtname" javaType="String" column="inbtid" 
+			select="com.lzf.erp.dao.InBuyTypeDao.findNameById" >
+		</association>
+		<!--关联供应商表  -->
+		<association property="insiname" javaType="String" column="insiid" 
+			select="com.lzf.erp.dao.InsupplierInfoDao.findNameById" >
+		</association>
+		<!--关联运输方式表  -->
+		<association property="intwiname" javaType="String" column="intwid" 
+			select="com.lzf.erp.dao.InTransportWayDao.findNameById" >
+		</association>
+		<!--关联交货方式表  -->
+		<association property="indwname" javaType="String" column="indwid" 
+			select="com.lzf.erp.dao.InDeliveryWayDao.findNameById" >
+		</association>
+		<!-- 关联系(细)表 -->
+		<collection property="inBuyContractDetails" ofType="InBuyContractDetail" column="inbcid"
+			select="com.lzf.erp.dao.InBuyContractDetailDao.queryInBuyContractDetailByInsiid" >
+		</collection>
+	</resultMap>
+	<!-- 全查inbuyapply表 -->
+	<select id="findAllInBuyContract" parameterType="Map" resultMap="inBuyContractResultMap">
+		select
+			ibt.inbcid,
+			ibt.inbccode,
+			ibt.inbcname,
+			ibt.insiid,
+			ibt.busiid,
+			ibt.businame,
+			ibt.busideptid,
+			ibt.busiorgid,
+			ibt.inbcdate,
+			ibt.inbccontent,
+			ibt.inbtid,
+			ibt.inbctotalprice,
+			ibt.inbcofferprice,
+			ibt.inbcactualprice,
+			ibt.inbcadvancemoney,
+			ibt.intwid,
+			ibt.indwid,
+			ibt.inbcdeliverydate,
+			ibt.inbcdeliveryaddress,
+			ibt.inbcstate,
+			ibt.inbcpaystate,
+			ibt.inbcbillstate,
+			ibt.remark,
+			ibt.wkexid,
+			ibt.approvalview,
+			ibt.state,
+			ibt.delflag,
+			ibt.optid,
+			ibt.optname,
+			ibt.optdeptid,
+			ibt.optorgid,
+			ibt.currdate
+		from
+			inbuycontract ibt
+		where
+			ibt.delflag=1 and ibt.wkexid=3
+			<if test="s_inbcname != bull and s_inbcname != ''">
+				and ibt.inbcname like '%${s_inbcname}%'
+			</if>
+			<if test="s_businame != bull and s_businame != ''">
+				and ibt.businame like '%${s_businame}%'
+			</if>
+			
+		limit #{page.start},#{page.rows}
+	</select>
+	<!-- 查询inbuyapply表条数 -->
+	<select id="findAllInBuyContractCount" parameterType="Map" resultType="Integer">
+		select count(*) from inbuycontract ibt
+			where 
+				ibt.delflag=1 and ibt.wkexid=3
+				<if test="s_inbcname != bull and s_inbcname != ''">
+					and ibt.inbcname like '%${s_inbcname}%'
+				</if>
+				<if test="s_businame != bull and s_businame != ''">
+					and ibt.businame like '%${s_businame}%'
+				</if>
+				
+	</select>
+	<select id="findInBuyContractById" parameterType="int" resultMap="inBuyContractResultMap">
+		select
+			ibt.inbcid,
+			ibt.inbccode,
+			ibt.inbcname,
+			ibt.insiid,
+			ibt.busiid,
+			ibt.businame,
+			ibt.busideptid,
+			ibt.busiorgid,
+			ibt.inbcdate,
+			ibt.inbccontent,
+			ibt.inbtid,
+			ibt.inbctotalprice,
+			ibt.inbcofferprice,
+			ibt.inbcactualprice,
+			ibt.inbcadvancemoney,
+			ibt.intwid,
+			ibt.indwid,
+			ibt.inbcdeliverydate,
+			ibt.inbcdeliveryaddress,
+			ibt.inbcstate,
+			ibt.inbcpaystate,
+			ibt.inbcbillstate,
+			ibt.remark,
+			ibt.wkexid,
+			ibt.approvalview,
+			ibt.state,
+			ibt.delflag,
+			ibt.optid,
+			ibt.optname,
+			ibt.optdeptid,
+			ibt.optorgid,
+			ibt.currdate
+		from
+			inbuycontract ibt
+		where
+			ibt.delflag=1 and ibt.wkexid=3 and ibt.inbcid=#{inbcid}
+	</select>
+	<update id="updateWkexid" parameterType="int">
+		update inbuycontract set wkexid=4 where inbcid=#{inbcid}
+	</update>
+	<!-- 查询inbuycontract表用于合同统计 -->
+	<select id="queryInBuyContractForStatistics" parameterType="Map" resultMap="inBuyContractResultMap">
+		select
+			ibt.inbcid,
+			ibt.inbccode,
+			ibt.inbcname,
+			ibt.insiid,
+			ibt.busiid,
+			ibt.businame,
+			ibt.busideptid,
+			ibt.busiorgid,
+			ibt.inbcdate,
+			ibt.inbccontent,
+			ibt.inbtid,
+			ibt.inbctotalprice,
+			ibt.inbcofferprice,
+			ibt.inbcactualprice,
+			ibt.inbcadvancemoney,
+			ibt.intwid,
+			ibt.indwid,
+			ibt.inbcdeliverydate,
+			ibt.inbcdeliveryaddress,
+			ibt.inbcstate,
+			ibt.inbcpaystate,
+			ibt.inbcbillstate,
+			ibt.remark,
+			ibt.wkexid,
+			ibt.approvalview,
+			ibt.state,
+			ibt.delflag,
+			ibt.optid,
+			ibt.optname,
+			ibt.optdeptid,
+			ibt.optorgid,
+			ibt.currdate
+		from
+			inbuycontract ibt
+		where
+			ibt.delflag=1 and ibt.wkexid=3 and ibt.inbtid!=1
+			<if test="inbcname != null and inbcname != ''">
+				and ibt.inbcname like '%${inbcname}%'
+			</if>
+			<if test="businame != null and businame != ''">
+				and ibt.businame like '%${businame}%'
+			</if>
+			<if test="inbtid != null and inbtid != ''">
+				and ibt.inbtid=#{inbtid}
+			</if>
+			<if test="beginDate != null and beginDate != '' and endDate != null and endDate != ''">
+				and ibt.inbcdate between #{beginDate} and #{endDate}
+			</if>
+	</select>
+	
+	<!--查询id最大值  -->
+	<select id="findMaxId" resultType="int">
+		select max(inbcid) from inbuycontract where delflag=1 and wkexid=3
+	</select>
+	
+	<insert id="addInBuyContract" parameterType="InBuyContract">
+		insert into
+			inbuycontract(
+				inbccode,
+				inbcname,
+				insiid,
+				busiid,
+				businame,
+				busideptid,
+				busiorgid,
+				inbcdate,
+				inbccontent,
+				inbtid,
+				inbctotalprice,
+				inbcofferprice,
+				inbcactualprice,
+				inbcadvancemoney,
+				intwid,
+				indwid,
+				inbcdeliverydate,
+				inbcdeliveryaddress,
+				inbcstate,
+				inbcpaystate,
+				inbcbillstate,
+				remark,
+				wkexid,
+				approvalview,
+				state,
+				delflag,
+				optid,
+				optname,
+				optdeptid,
+				optorgid,
+				currdate
+			)values(
+				#{inbccode},
+				#{inbcname},
+				#{insiid},
+				#{busiid},
+				#{businame},
+				#{busideptid},
+				#{busiorgid},
+				now(),
+				#{inbccontent},
+				#{inbtid},
+				#{inbctotalprice},
+				#{inbcofferprice},
+				#{inbcactualprice},
+				#{inbcadvancemoney},
+				#{intwid},
+				#{indwid},
+				#{inbcdeliverydate},
+				#{inbcdeliveryaddress},
+				#{inbcstate},
+				#{inbcpaystate},
+				#{inbcbillstate},
+				#{remark},
+				3,
+				#{approvalview},
+				0,
+				1,
+				#{optid},
+				#{optname},
+				#{optdeptid},
+				#{optorgid},
+				now()
+			)
+	</insert>
+</mapper>

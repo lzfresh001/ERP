@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.UserMapper" >
+	<!-- user的resultMap -->
+	<resultMap id="userResultMap" type="User">
+		<id column="uid" property="uid"/>
+		<result column="uname" property="uname"/>
+		<result column="password" property="password"/>
+		<result column="userType" property="userType"/>
+		<result column="roleId" property="roleId"/>
+		<result column="userDescription" property="userDescription"/>
+		<result column="delflag" property="delflag"/>
+		<result column="currentTime" property="currentTime"/>
+	</resultMap>
+	<!-- role的resultMap -->
+	<resultMap id="roleResultMap" type="Role">
+		<id column="roleId" property="roleId"/>
+		<result column="roleName" property="roleName"/>
+		<result column="authIds" property="authIds"/>
+		<result column="roleDescription" property="roleDescription"/>
+		<result column="delflag" property="delflag"/>
+		<result column="currentTime" property="currentTime"/>
+	</resultMap>
+	<!-- 根据uname和password查询user -->
+	<select id="queryUserByUnamePwd" parameterType="User" resultMap="userResultMap">
+		select * from user where delflag=0 and uname=#{uname} and password=MD5(#{password})
+	</select>
+	<!-- 主表user 从表role 一对一 -->
+	<resultMap type="User" id="userRoleResultMap" extends="userResultMap">
+		<association property="role" javaType="Role" resultMap="roleResultMap"></association>
+	</resultMap>
+	<!-- sql片段 模糊查询根据条件查询 -->
+	<sql id="query_user_where">
+		<!-- 两表关联及其可用条件 -->
+		u.roleId=r.roleId and u.delflag=0 and r.delflag=0
+		<!-- 用户名称输入框不为空则拼接 -->
+		<if test="user.uname != null and user.uname != ''">
+			and u.uname like concat("%",#{user.uname},"%")
+		</if>
+		<!-- 用户角色选择框不为空则拼接 -->
+		<if test="user.roleId != null and user.roleId != ''">
+			and u.roleId=#{user.roleId}
+		</if>
+	</sql>
+	<!-- 查询用户管理页面所需信息 -->
+	<select id="queryAllUser" parameterType="Map" resultMap="userRoleResultMap">
+		select u.*,r.* from user u,role r 
+		<where>
+			<include refid="query_user_where"></include>
+		</where>
+		limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	<!-- 查询用户管理页面所需总条数 -->
+	<select id="queryAllUserCount" parameterType="Map" resultType="Integer">
+		select count(*) from user u,role r
+		<where>
+			<include refid="query_user_where"></include>
+		</where>
+	</select>
+	<!-- 根据uname查询user表 -->
+	<select id="queryUserByUname" parameterType="User" resultMap="userResultMap">
+		select * from user where uname=#{uname}
+	</select>
+	<!-- 添加用户 -->
+	<insert id="saveUser" parameterType="User">
+		insert into user(uname,password,roleId,userDescription) 
+			values(#{uname},MD5(#{password}),#{roleId},#{userDescription})
+	</insert>
+	<!-- 修改用户信息 -->
+	<update id="updateUser" parameterType="User">
+		update user set roleId=#{roleId},userDescription=#{userDescription}
+			where uid=#{uid}
+	</update>
+	<!-- 逻辑删除用户信息 -->
+	<update id="deleteUser" parameterType="Integer">
+		update user set delflag=1 where uid=#{uid}
+	</update>
+</mapper>

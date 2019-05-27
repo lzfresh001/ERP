@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.InDeliveryWayDao" >
+	<!-- InDeliveryWay的resultMap -->
+	<resultMap id="inDeliveryWayResultMap" type="InDeliveryWay" >
+    	<id column="indwid" property="indwid" jdbcType="INTEGER" />
+	    <result column="indwname" property="indwname" jdbcType="VARCHAR" />
+	    <result column="indwcode" property="indwcode" jdbcType="VARCHAR" />
+	    <result column="remark" property="remark" jdbcType="VARCHAR" />
+	    <result column="state" property="state" jdbcType="INTEGER" />
+	    <result column="delflag" property="delflag" jdbcType="INTEGER" />
+	    <result column="optid" property="optid" jdbcType="INTEGER" />
+	    <result column="optname" property="optname" jdbcType="VARCHAR" />
+	    <result column="optdeptid" property="optdeptid" jdbcType="INTEGER" />
+	    <result column="optorgid" property="optorgid" jdbcType="INTEGER" />
+	    <result column="currdate" property="currdate" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<!-- 根据indwid查InDeliveryWay表 -->
+	<select id="queryInDeliveryWayByIndwid" parameterType="Integer" resultMap="inDeliveryWayResultMap">
+		select
+			bt.indwid,
+			bt.indwname,
+			bt.indwcode,
+			bt.remark,
+			bt.state,
+			bt.delflag,
+			bt.optid,
+			bt.optname,
+			bt.optdeptid,
+			bt.optorgid,
+			bt.currdate
+		from
+			indeliveryway bt
+		where
+			bt.delflag=1 and bt.indwid=#{indwid}
+	</select>
+	<!-- 全查InDeliveryWay表 -->
+	<select id="queryAllInDeliveryWay" resultMap="inDeliveryWayResultMap">
+		select
+			bt.indwid,
+			bt.indwname,
+			bt.indwcode,
+			bt.remark,
+			bt.state,
+			bt.delflag,
+			bt.optid,
+			bt.optname,
+			bt.optdeptid,
+			bt.optorgid,
+			bt.currdate
+		from
+			indeliveryway bt
+		where
+			bt.delflag=1
+	</select>
+	
+	<sql id="exqueryInDeliveryWay">
+		<if test="s_indwname!=null and s_indwname!=''">
+			and indwname like concat("%",#{s_indwname},"%")
+		</if>
+	</sql>
+	
+	<select id="findAllInDeliveryWay" parameterType="Map" resultMap="inDeliveryWayResultMap">
+		select
+			indwid,
+			indwname,
+			indwcode,
+			remark,
+			state,
+			delflag,
+			optid,
+			optname,
+			optdeptid,
+			optorgid,
+			currdate
+		from 
+			indeliveryway
+		where
+			delflag=1
+		<include refid="exqueryInDeliveryWay"></include>
+		limit
+			#{pageBean.start},#{pageBean.rows}	
+			
+	</select>
+	<select id="findAllInDeliveryWayCount" parameterType="Map" resultType="int">
+		select
+			count(*)
+		from
+			indeliveryway
+		where
+			delflag=1
+		<include refid="exqueryInDeliveryWay"></include>
+	</select>
+	
+	<select id="findInDeliveryWayByCode" parameterType="String" resultType="int">
+		select 
+			count(*)
+		from
+			indeliveryway
+		where
+			indwcode=#{indwcode}
+	</select>
+	
+	<select id="findInDeliveryWayByName" parameterType="String" resultType="int">
+		select 
+			count(*)
+		from
+			indeliveryway
+		where
+			indwname=#{indwname}
+	</select>
+	
+	<select id="findNameById" parameterType="int" resultType="String">
+		select
+			indwname
+		from
+			indeliveryway
+		where
+			indwid=#{indwid}
+			
+	</select>
+	
+	<select id="findInDeliveryWayList" resultMap="inDeliveryWayResultMap">
+		select
+			indwid,
+			indwcode,
+			indwname,
+			remark,
+			state,
+			delflag,
+			optid,
+			optname,
+			optdeptid,
+			optorgid,
+			currdate
+		from 
+			indeliveryway
+		where
+			delflag=1
+	</select>
+	
+	<insert id="addInDeliveryWay" parameterType="InDeliveryWay">
+		insert into 
+			indeliveryway(
+				indwcode,
+				indwname,
+				remark,
+				state,
+				delflag,
+				optid,
+				optname,
+				optdeptid,
+				optorgid,
+				currdate
+			)
+		values(
+				#{indwcode},
+				#{indwname},
+				#{remark},
+				1,
+				1,
+				#{optid},
+				#{optname},
+				#{optdeptid},
+				1,
+				now()
+		)
+	</insert>
+	<update id="updateInDeliveryWay" parameterType="InDeliveryWay">
+		update 
+			indeliveryway
+		set
+			indwcode=#{indwcode},
+			indwname=#{indwname},
+			remark=#{remark}
+		where
+			indwid=#{indwid}
+	</update>
+	<delete id="deleteInDeliveryWayById" parameterType="String">
+		update
+			indeliveryway
+		set
+			delflag=0
+		where
+			indwid=#{indwid}
+	</delete>
+</mapper>

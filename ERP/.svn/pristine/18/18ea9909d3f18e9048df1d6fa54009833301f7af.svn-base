@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.InBuyTypeDao" >
+	<!-- inbuytype的resultMap -->
+	<resultMap id="inBuyTypeResultMap" type="InBuyType" >
+    	<id column="inbtid" property="inbtid" jdbcType="INTEGER" />
+	    <result column="inbtcode" property="inbtcode" jdbcType="VARCHAR" />
+	    <result column="inbtname" property="inbtname" jdbcType="VARCHAR" />
+	    <result column="inbthandleid" property="inbthandleid" jdbcType="INTEGER" />
+	    <result column="remark" property="remark" jdbcType="VARCHAR" />
+	    <result column="state" property="state" jdbcType="INTEGER" />
+	    <result column="delflag" property="delflag" jdbcType="INTEGER" />
+	    <result column="optid" property="optid" jdbcType="INTEGER" />
+	    <result column="optname" property="optname" jdbcType="VARCHAR" />
+	    <result column="optdeptid" property="optdeptid" jdbcType="INTEGER" />
+	    <result column="optorgid" property="optorgid" jdbcType="INTEGER" />
+	    <result column="currdate" property="currdate" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<!-- 根据inbtid查inbuytype表 -->
+	<select id="queryInBuyTypeByInbtid" parameterType="Integer" resultMap="inBuyTypeResultMap">
+		select
+			bt.inbtid,
+			bt.inbtcode,
+			bt.inbtname,
+			bt.inbthandleid,
+			bt.remark,
+			bt.state,
+			bt.delflag,
+			bt.optid,
+			bt.optname,
+			bt.optdeptid,
+			bt.optorgid,
+			bt.currdate
+		from
+			inbuytype bt
+		where
+			bt.delflag=1 and bt.inbtid=#{inbtid}
+	</select>
+	<!-- 全查inbuytype表 -->
+	<select id="queryAllInBuyType" resultMap="inBuyTypeResultMap">
+		select
+			bt.inbtid,
+			bt.inbtcode,
+			bt.inbtname,
+			bt.inbthandleid,
+			bt.remark,
+			bt.state,
+			bt.delflag,
+			bt.optid,
+			bt.optname,
+			bt.optdeptid,
+			bt.optorgid,
+			bt.currdate
+		from
+			inbuytype bt
+		where
+			bt.delflag=1
+	</select>
+	
+	<sql id="exqueryInBuyType">
+		<if test="s_inbtname!=null and s_inbtname!=''">
+			and inbtname like concat("%",#{s_inbtname},"%")
+		</if>
+	</sql>
+	
+	<select id="findAllInBuyType" parameterType="Map" resultMap="inBuyTypeResultMap">
+		select
+			inbtid,
+			inbtcode,
+			inbtname,
+			inbthandleid,
+			remark,
+			state,
+			delflag,
+			optid,
+			optname,
+			optdeptid,
+			optorgid,
+			currdate
+		from 
+			inbuytype
+		where
+			delflag=1
+		<include refid="exqueryInBuyType"></include>
+		limit
+			#{pageBean.start},#{pageBean.rows}	
+			
+	</select>
+	<select id="findAllInBuyTypeCount" parameterType="Map" resultType="int">
+		select
+			count(*)
+		from
+			inbuytype
+		where
+			delflag=1
+		<include refid="exqueryInBuyType"></include>
+	</select>
+	
+	<select id="findInBuyTypeByCode" parameterType="String" resultType="int">
+		select 
+			count(*)
+		from
+			inbuytype
+		where
+			inbtcode=#{inbtcode}
+	</select>
+	
+	<select id="findInBuyTypeByName" parameterType="String" resultType="int">
+		select 
+			count(*)
+		from
+			inbuytype
+		where
+			inbtname=#{inbtname}
+	</select>
+	
+	<select id="findNameById" parameterType="int" resultType="String">
+		select
+			inbtname
+		from
+			inbuytype
+		where
+			inbtid=#{inbtid}
+			
+	</select>
+	
+	<select id="findAllInBuyTypeList" resultMap="inBuyTypeResultMap">
+		select
+			inbtid,
+			inbtcode,
+			inbtname,
+			inbthandleid,
+			remark,
+			state,
+			delflag,
+			optid,
+			optname,
+			optdeptid,
+			optorgid,
+			currdate
+		from 
+			inbuytype
+		where
+			delflag=1
+	</select>
+	
+	<insert id="addInBuyType" parameterType="InBuyType">
+		insert into 
+			inbuytype(
+				inbtcode,
+				inbtname,
+				inbthandleid,
+				remark,
+				state,
+				delflag,
+				optid,
+				optname,
+				optdeptid,
+				optorgid,
+				currdate
+			)
+		values(
+				#{inbtcode},
+				#{inbtname},
+				#{inbthandleid},
+				#{remark},
+				1,
+				1,
+				#{optid},
+				#{optname},
+				#{optdeptid},
+				1,
+				now()
+		)
+	</insert>
+	<update id="updateInBuyType" parameterType="InBuyType">
+		update 
+			inbuytype
+		set
+			inbtcode=#{inbtcode},
+			inbtname=#{inbtname},
+			remark=#{remark}
+		where
+			inbtid=#{inbtid}
+	</update>
+	<delete id="deleteInBuyTypeById" parameterType="String">
+		update
+			inbuytype
+		set
+			delflag=0
+		where
+			inbtid=#{inbtid}
+	</delete>
+</mapper>

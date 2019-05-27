@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.RoleDao" >
+	<!-- user的resultMap -->
+	<resultMap id="userResultMap" type="User">
+		<id column="uid" property="uid"/>
+		<result column="uname" property="uname"/>
+		<result column="password" property="password"/>
+		<result column="userType" property="userType"/>
+		<result column="roleId" property="roleId"/>
+		<result column="userDescription" property="userDescription"/>
+		<result column="delflag" property="delflag"/>
+		<result column="currentTime" property="currentTime"/>
+	</resultMap>
+	<!-- role的resultMap -->
+	<resultMap id="roleResultMap" type="Role">
+		<id column="roleId" property="roleId"/>
+		<result column="roleName" property="roleName"/>
+		<result column="authIds" property="authIds"/>
+		<result column="roleDescription" property="roleDescription"/>
+		<result column="delflag" property="delflag"/>
+		<result column="currentTime" property="currentTime"/>
+	</resultMap>
+	<!-- 根据roleId查authIds -->
+	<select id="queryAuthIdsByRoleId" parameterType="Integer" resultType="String">
+		select authIds from role where roleId=#{roleId} and delflag=0
+	</select>
+	<!-- 根据roleId查询role -->
+	<select id="queryRoleByRoleId" parameterType="Integer" resultMap="roleResultMap">
+		select * from role where roleId=#{roleId}
+	</select>
+	<!-- 查询所有role信息(用户页面下拉框) -->
+	<select id="queryAllRole" resultMap="roleResultMap">
+		select * from role where delflag=0
+	</select>
+	<!-- 查询所有role信息(带分页) -->
+	<select id="findAllRole" parameterType="Map" resultMap="roleResultMap">
+		select * from role where delflag=0
+		<if test="role.roleName != null and role.roleName != ''">
+			and roleName like concat("%",#{role.roleName},"%")
+		</if>
+		limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	<!-- 查询role表的总条数 -->
+	<select id="findRoleCount" parameterType="Map" resultType="Integer">
+		select count(*) from role where delflag=0
+		<if test="role.roleName != null and role.roleName != ''">
+			and roleName like concat("%",#{role.roleName},"%")
+		</if>
+	</select>
+	<!-- 根据roleName查role表 -->
+	<select id="queryRoleByRoleName" parameterType="Role" resultMap="roleResultMap">
+		select * from role where roleName=#{roleName}
+	</select>
+	<!-- 添加role -->
+	<insert id="addRole" parameterType="Role">
+		insert into role(roleName,roleDescription) values(#{roleName},#{roleDescription})
+	</insert>
+	<!-- 修改角色信息 -->
+	<update id="updateRole" parameterType="Role" >
+		update role set roleDescription=#{roleDescription}
+			where roleId=#{roleId}
+	</update>
+	<!-- 逻辑删除角色 -->
+	<update id="deleteRole" parameterType="Integer">
+		update role set delflag=1 where roleId=#{roleId}
+	</update>
+	<!-- 根据roleId更新authIds -->
+	<update id="giveAuthIdsByRoleId" parameterType="Role">
+		update role set authIds=#{authIds} where roleId=#{roleId}
+	</update>
+</mapper>

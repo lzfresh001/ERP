@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>采购审核</title>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/default/easyui.css"/>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/icon.css"/>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body style="margin: 1px;">
+	<table id="dg" title="采购审核" class="easyui-datagrid" fitColumns="true" pagination="true"
+		rownumbers="true" url="../inBuyApply/querySubmitedInBuyApply.do"
+		fit="true" toolbar="#tb" singleSelect="true">
+		<thead>
+			<tr>
+				<th field="inbacode" width="50" align="center" data-options="sortable:true">申请编码</th>
+				<th field="inbaname" width="50" align="center" data-options="sortable:true">申请名称</th>
+				<th field="businame" width="50" align="center" data-options="sortable:true">申请人</th>
+				<th field="inbtname" width="50" align="center" data-options="sortable:true">采购类型</th>
+				<th field="inbareason" width="50" align="center" data-options="sortable:true">申请事由</th>
+				<th field="inbadate" width="50" align="center" sortable="true">申请时间</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="tb">
+		<div>
+			<a href="javascript:openThroughDialog()" class="easyui-linkbutton" iconCls="icon-ok" plain="true">通过申请</a>
+			<a href="javascript:openRejectedDialog()" class="easyui-linkbutton" iconCls="icon-no" plain="true">驳回申请</a>
+        </div>
+		<div>
+			&nbsp;申请名称：&nbsp;<input type="text" name="s_inbaname" id="s_inbaname" size="20" onkeydown="if(event.keyCode==13) searchIBAS()"/>
+			&nbsp;申请人：&nbsp;<input type="text" name="s_businame" id="s_businame" size="20" onkeydown="if(event.keyCode==13) searchIBAS()"/>
+			&nbsp;申请时间：&nbsp;<input class="easyui-datebox" id="s_beginDate" name="s_beginDate" size="20"/>&nbsp; --
+				           &nbsp;<input class="easyui-datebox" id="s_endDate" name="s_endDate" size="20"/>
+			<a href="javascript:searchIBAS()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	</div>
+	 <!-- 审核详情 dialog (start) -->
+	 <div id="dlg" class="easyui-dialog" style="width: 550px;height: 450px;padding-top: 5px;padding-bottom: 80px;padding-left: 5px;padding-right: 5px;" closed="true" closable="false" buttons="#dlg-buttons" data-options="modal:true">
+		<!-- 审核详情展示--start -->
+	<table id="dg1" title="采购申请明细" class="easyui-datagrid" fitColumns="true" pagination=""
+		rownumbers="true" url="" 
+		fit="true" toolbar="">
+		<thead>
+			<tr>
+				<th field="inginame" width="50px" align="center">名称</th>
+				<th field="mycou" width="50px" align="center">数量</th>
+				<th field="myprice" width="50px" align="center">单价</th>
+				<th field="mymoney" width="50px" align="center">总价</th>
+				<th field="remark" width="50px" align="center">备注</th>
+			</tr>
+		</thead>
+	</table>
+	<!-- 驳回理由 -->
+	<div style="margin-top: 10px;font-size: 17px;font-weight: bold;">
+		采购总额: <span class="easyui-validatebox" id="totailMoney" name="totailMoney" size="10" readonly="readonly"></span>元<br/>
+		<div id="approvalviewDiv">
+		审批意见: <input style="margin-top: 10px;" class="easyui-validatebox" id="approvalview" name="approvalview" size="50" required="required"/>
+		</div>
+	</div>
+	<!-- 审核详情展示--end -->
+	<div id="dlg-buttons">
+	      <a href="javascript:saveApprovalview()" class="easyui-linkbutton" iconCls="icon-ok">确认</a>
+	      <a href="javascript: closeIBADDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	</div>
+	<!-- 审核详情 dialog (end) -->
+	
+	 <!-- 点击一行查看详情 dialog (start) -->
+	 <div id="dlg2" class="easyui-dialog" style="width: 550px;height: 400px;padding-top: 5px;padding-bottom: 50px;padding-left: 5px;padding-right: 5px;" closed="true" closable="false" buttons="#dlg2-buttons" data-options="modal:true">
+		<!-- 点击一行查看详情展示--start -->
+	<table id="dg2" title="采购申请明细" class="easyui-datagrid" fitColumns="true" pagination=""
+		rownumbers="true" url="" 
+		fit="true" toolbar="">
+		<thead>
+			<tr>
+				<th field="inginame" width="50px" align="center">名称</th>
+				<th field="mycou" width="50px" align="center">数量</th>
+				<th field="myprice" width="50px" align="center">单价</th>
+				<th field="mymoney" width="50px" align="center">总价</th>
+				<th field="remark" width="50px" align="center">备注</th>
+			</tr>
+		</thead>
+	</table>
+	<div style="margin-top: 10px;font-size: 17px;font-weight: bold;">
+		采购总额: <span class="easyui-validatebox" id="totailMoneyK" name="totailMoneyK" size="10" readonly="readonly"></span>元<br/>
+	</div>
+	<!-- 点击一行查看详情展示--end -->
+	<div id="dlg2-buttons">
+	      <a href="javascript: closeIBADDKialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	</div>
+	<!-- 点击一行查看详情详情 dialog (end) -->
+</body>
+<script type="text/javascript">
+	// 点击搜索按钮触发事件
+	function searchIBAS(){
+		var inbaname =  $("#s_inbaname").val();
+		var businame =  $("#s_businame").val();
+		var beginDate =  $("#s_beginDate").val();
+		var endDate =  $("#s_endDate").val();
+		//alert(inbaname +":"+ businame +":"+ beginDate +":"+ endDate);
+		if(beginDate != null && beginDate != ""){
+			if(endDate == null || endDate == ""){
+				$.messager.alert("系统提示","请选择结束时间！","info")
+				return;
+			}
+		}
+		if(endDate != null && endDate != ""){
+			if(beginDate == null || beginDate == ""){
+				$.messager.alert("系统提示","请选择开始时间！","info")
+				return;
+			}
+		}
+		$("#dg").datagrid("load",{
+			inbaname:inbaname,
+			businame:businame,
+			beginDate:beginDate,
+			endDate:endDate
+		});
+	}
+	
+	
+	// 定义通过/驳回的URL
+	var throughUrl = "../inBuyApply/throughInBuyApply.do";
+	var rejectedUrl = "../inBuyApply/rejectedInBuyApply.do";
+	var currentUrl = "";
+	
+	// 点击主表某一行时加载对应的系(细)表信息并计算采购总额
+	$(function(){
+		$("#dg").datagrid({
+			onClickRow:function(index,row){
+				var details = row.inBuyApplyDetail;
+				var totalMoney = 0;
+				$.each(details,function(index,detail){
+					var mymoney = detail.mymoney;
+					totalMoney += mymoney;
+				});
+				$("#totailMoney").html(totalMoney);
+				$("#totailMoneyK").html(totalMoney);
+				$("#dlg2").dialog("open").dialog("setTitle","采购详情");
+				$("#dg2").datagrid("loadData",details);
+			} 
+		});
+	});
+	
+	// 点击一行查看详情 --> 点击 关闭按钮触发事件
+	function closeIBADDKialog(){
+		$("#dlg2").dialog("close");
+	}
+	
+	// 点击驳回申请按钮触发事件
+	function openRejectedDialog(){
+		var row = $("#dg").datagrid("getSelected");
+		if(row == null){
+			$.messager.alert("驳回提示","请选择需要驳回的申请！","warning");
+			return;
+		}
+		var detail = row.inBuyApplyDetail;
+		//alert(detail);
+		$("#dlg").dialog("open").dialog("setTitle","驳回申请确认");
+		$("#dg1").datagrid("loadData",detail);
+		currentUrl = rejectedUrl;
+	}
+	
+	// 点击通过申请按钮触发事件
+	function openThroughDialog(){
+		var row = $("#dg").datagrid("getSelected");
+		if(row == null){
+			$.messager.alert("通过提示","请选择需要通过的申请！","warning");
+			return;
+		}
+		$("#dlg").dialog("open").dialog("setTitle","通过申请确认");
+		$("#dg1").datagrid("loadData",row.inBuyApplyDetail);
+		currentUrl = throughUrl;
+	}
+	
+	// 点击 采购申请明细 关闭按钮触发事件
+	function closeIBADDialog(){
+		$("#dlg").dialog("close");
+	}
+	
+	// 点击 采购申请明细 确认按钮触发事件
+	function saveApprovalview(){
+		var row = $("#dg").datagrid("getSelected");
+		if(row == null){
+			$.messager.alert("驳回提示","请选择需要驳回的申请！","warning");
+			return;
+		}
+		var inbaid = row.inbaid;
+		var approvalview = $("#approvalview").val();
+		if(!/^\S{2,100}$/.test(approvalview)){
+			$.messager.alert("系统提示","审批意见不合法！必须2-100位、汉字、数字或字母、下划线","warning");
+			return;
+		}
+		$.ajax({
+			type:"post",
+			dataType:"json",
+			data:{
+				inbaid:inbaid,
+				approvalview:approvalview
+			},
+			url:currentUrl,
+			success:function(data){
+				if(data.res == "1"){
+					$.messager.alert("系统提示",data.msg,"info");
+					closeIBADDialog();
+					$("#dg").datagrid("reload");
+				}else{
+					$.messager.alert("系统提示",data.res,"info");
+					closeIBADDialog();
+					$("#dg").datagrid("reload");
+				}
+			},
+			error:function(){
+				$.messager.alert("系统提示","系统繁忙！","error");
+			}
+		});
+		currentUrl = "";
+	}
+</script>
+</html>

@@ -1,0 +1,49 @@
+package com.lzf.erp.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.lzf.erp.model.InBuyContract;
+
+import net.sf.json.JSONArray;
+
+/**@文件名: InBuyContractService.java
+ * @类功能说明: 合同 管理 service层
+ * @作者: YangFan
+ * @Email: 
+ * @日期: 2019年5月20日上午11:45:10
+ * @修改说明:<br> 
+ * <pre>
+ * 	 <li>作者: YangFan</li> 
+ * 	 <li>日期: 2019年5月20日上午11:45:10</li> 
+ *	 <li>内容: </li>
+ * </pre>
+ */
+public interface InBuyContractService {
+
+	/**@方法名: findAllInBuyContract
+	 * @方法说明: 合同+明细表查询+模糊搜索+分页
+	 * @作者: YangFan
+	 * @邮箱：
+	 * @日期: 2019年5月20日上午11:42:57
+	 * @param map
+	 * @return
+	 * @return: JSONArray
+	 */
+	JSONArray findAllInBuyContract(Map<String, Object> map);
+
+	/**@方法名: findAllInBuyContractCount
+	 * @方法说明:  合同+明细表查询+模糊搜索总条数
+	 * @作者: YangFan
+	 * @邮箱：
+	 * @日期: 2019年5月20日上午11:43:39
+	 * @param map
+	 * @return
+	 * @return: int
+	 */
+	int findAllInBuyContractCount(Map<String, Object> map);
+	
+	// 查询inbuycontract表用于合同统计
+	public JSONArray queryInBuyContractForStatistics(Map<String,Object> map);
+	
+}

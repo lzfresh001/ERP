@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>订单统计</title>
+		<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/default/easyui.css"/>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/icon.css"/>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body style="margin: 1px;">
+	<table id="dg" title="合同统计" class="easyui-datagrid" fitColumns="true" pagination="true"
+		rownumbers="true" url="../inBuyOrder/queryInBuyOrderForStatistics.do"
+		fit="true" toolbar="#tb" singleSelect="true">
+		<thead>
+			<tr>
+				<th field="inbocode" width="" align="center" data-options="sortable:true">订单编码</th>
+				<th field="inboname" width="" align="center" data-options="sortable:true">订单名称</th>
+				<th field="insiname" width="" align="center" data-options="sortable:true">供货商</th>
+				<th field="businame" width="" align="center" data-options="sortable:true">签订人姓名</th>
+				<th field="inbodate" width="" align="center" sortable="true">下单时间</th>
+				<th field="inbototalprice" width="" align="center" data-options="sortable:true">订单总价</th>
+				<th field="inboofferprice" width="" align="center" data-options="sortable:true">优惠价</th>
+				<th field="inboactualprice" width="" align="center" sortable="true">订单实价</th>
+				<th field="indwname" width="" align="center" sortable="true">交货方式</th>
+				<th field="intwiname" width="" align="center" sortable="true">运输方式</th>
+				<th field="inbodeliverydate" width="" align="center" sortable="true">交货时间</th>
+				<th field="inbodeliveryaddress" width="" align="center" sortable="true">交货地点</th>
+				<th field="optname" width="" align="center" sortable="true">操作人</th>
+				<th field="remark" width="" align="center" sortable="true">备注</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="tb">
+		<div>
+			&nbsp;合同名称: <input type="text" name="s_inbcname" id="s_inbcname" size="10" onkeydown="if(event.keyCode==13) searchIBCForStatistics()"/>
+			&nbsp;签订人: <input type="text" name="s_businame" id="s_businame" size="10" onkeydown="if(event.keyCode==13) searchIBCForStatistics()"/>
+			&nbsp;采购类型: <input class="easyui-combobox" style="width: 120px" name="s_inbtid" id="s_inbtid" data-options="editable:false,panelHeight:'auto',valueField:'inbtid',textField:'inbtname',url:'../inBuyType/queryAllInBuyType.do'"/>
+			&nbsp;签订时间：&nbsp;<input class="easyui-datebox" id="s_beginDate" name="s_beginDate" size="11"/>&nbsp; --
+				           &nbsp;<input class="easyui-datebox" id="s_endDate" name="s_endDate" size="11"/>
+			<a href="javascript:searchIBCForStatistics()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	</div>
+</body>
+</html>

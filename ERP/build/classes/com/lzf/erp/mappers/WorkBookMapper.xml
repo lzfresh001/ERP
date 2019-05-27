@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.WorkBookDao" >
+	<!-- workbook的resultMap -->
+	<resultMap id="workBookResultMap" type="WorkBook">
+		<id column="wid" property="wid"/>
+		<result column="wname" property="wname"/>
+		<result column="delflag" property="delflag"/>
+		<result column="remark" property="remark"/>
+		<result column="currentTime" property="currentTime"/>
+		<result column="updateTime" property="updateTime"/>
+		<result column="optionPerson" property="optionPerson"/>
+		<!-- 关联子表 -->
+		<collection property="workBookDetail" ofType="WorkBookDetail" column="wid" 
+			select="com.lzf.erp.dao.WorkBookDetailDao.queryAllWorkBookDetail" >
+		</collection>
+	</resultMap>
+	<!-- 全查workbook表 -->
+	<select id="queryAllworkBook" parameterType="Map" resultMap="workBookResultMap">
+		select
+			wb.wid,
+			wb.wname,
+			wb.delflag,
+			wb.remark,
+			wb.currentTime,
+			wb.updateTime,
+			wb.optionPerson
+		from 
+			workbook wb 
+		where 
+			wb.delflag=1
+		<if test="searchValue != null and searchValue != ''">
+			and wb.wname like '%${searchValue}%'
+		</if>
+		limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	<!-- 查询workbook表的条数 -->
+	<select id="queryAllworkBookCount" parameterType="Map" resultType="Integer">
+		select count(*) from workbook where delflag=1
+		<if test="searchValue != null and searchValue != ''">
+			and wname like '%${searchValue}%'
+		</if>
+	</select>
+	<!-- 添加workbook表 -->
+	<insert id="addWorkBook" parameterType="WorkBook">
+		insert into workbook(wname,remark,optionPerson)
+			values(#{wname},#{remark},#{optionPerson})
+	</insert>
+	<!-- 获取workbook表中wid的最大值 -->
+	<select id="getMaxWid" resultType="Integer">
+		select max(wid) from workbook where delflag=1
+	</select>
+	<!-- 逻辑删除workbook表 -->
+	<update id="deleteWorkBook" parameterType="Integer">
+		update workbook set delflag=0 where wid=#{wid}
+	</update>
+	<!-- 修改workbook表 -->
+	<update id="updateWorkBook" parameterType="WorkBook">
+		update workbook set wname=#{wname},remark=#{remark},updateTime=#{updateTime}
+			where wid=#{wid}
+	</update>
+</mapper>

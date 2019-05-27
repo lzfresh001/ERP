@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>物品生产商</title>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/default/easyui.css"/>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/icon.css"/>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body style="margin: 1px">
+	<!-- 物品生产商展示--start -->
+	<table id="dg" title="物品生产商" class="easyui-datagrid" fitColumns="true" pagination="true"
+		rownumbers="true" url="../inGoodsProducer/queryAllInGoodsProducer.do"
+		fit="true" toolbar="#tb">
+		<thead>
+			<tr>
+				<th field="cb" checkbox="true" align="center" ></th>
+				<th field="ingpid" width="50px" align="center" hidden="true">生产商ID</th> 
+				<th field="ingpcode" width="50px" align="center">生产商编码</th> 
+				<th field="ingpname" width="50px" align="center">生产商名称</th>
+				<th field="ingplinkman" width="50px" align="center">生产商联系人</th>
+				<th field="ingpphone" width="50px" align="center">联系电话</th>
+				<th field="ingpaddress" width="50px" align="center">生产商地址</th>
+				<th field="optname" width="50px" align="center">操作人</th>
+				<th field="remark" width="50px" align="center">备注</th>
+			</tr>
+		</thead>
+	</table>
+	<!-- 物品生产商展示--end -->
+	<!-- 物品生产商操作按钮--start -->
+	<div id="tb">
+		<div>
+			<a href="javascript:openInGoodsProducerAddDialog()" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+			<a href="javascript:openInGoodsProducerModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
+			<a href="javascript:inGoodsProducerDelete()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+        </div>
+		<div>&nbsp;商品名称：&nbsp;<input type="text" name="s_ingpname" id="s_ingpname" size="20" onkeydown="if(event.keyCode==13) searchInGoodsProducer()"/>
+			<a href="javascript:searchInGoodsProducer()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	</div>
+	<!-- 物品生产商操作按钮--end -->
+	
+	<!-- 添加物品生产商/修改物品生产商 dialog (start) -->
+	 <div id="dlg" class="easyui-dialog" style="width: 680px;height: 300px;padding: 10px 20px" closed="true" buttons="#dlg-buttons" data-options="modal:true">
+	     <form id="fm" method="post">
+	     	<table cellspacing="5px">
+				<p><input type="hidden" id="ingpid" name="ingpid" /></p>
+				<tr>
+					<td>生产商编号：</td>
+		      		<td>
+		      			<input type="text" id="ingpcode" name="ingpcode" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		      		<td>生产商名称：</td>
+		      		<td>
+		      			<input type="text" id="ingpname" name="ingpname" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      	</tr>
+		      	<tr>
+					<td>生产商联系人：</td>
+		      		<td>
+		      			<input type="text" id="ingplinkman" name="ingplinkman" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		      		<td>联系电话：</td>
+		      		<td>
+		      			<input type="text" id="ingpphone" name="ingpphone" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      	</tr>
+		      	<tr>
+					<td>生产商地址：</td>
+		      		<td colspan="4">
+				     	<textarea rows="2" cols="50" name="ingpaddress" id="ingpaddress" class="easyui-validatebox" required="true"></textarea>
+				    </td>
+		      	</tr>
+		      	
+				<tr>
+					<td>备注：</td>
+					<td colspan="4">
+				     	<textarea rows="4" cols="50" name="remark" id="remark"></textarea>
+				    </td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	
+	<div id="dlg-buttons">
+	      <a href="javascript:saveInGoodsProducer()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+	      <a href="javascript: closeInGoodsProducerAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	<!-- 添加物品生产商/修改物品生产商 dialog (end) -->
+</body>
+<script type="text/javascript">
+	// 点击搜索按钮触发事件
+	function searchInGoodsProducer(){
+		var ingpname = $("#s_ingpname").val();
+		$("#dg").datagrid("load",{
+			ingpname:ingpname
+		});
+	}
+	
+	// 定义添加物品生产商/修改物品生产商的URL
+	var saveInGoodsProducerUrl = "../inGoodsProducer/saveInGoodsProducer.do";
+	var updateInGoodsProducerUrl = "../inGoodsProducer/updateInGoodsProducer.do";
+	var currentUrl = "";
+	
+	// 点击添加按钮触发事件
+	function openInGoodsProducerAddDialog(){
+		$("#dlg").dialog("open").dialog("setTitle","添加物品生产商");
+		$("#ingpcode").removeAttr("readonly");
+		$("#ingpname").removeAttr("readonly");
+		currentUrl = saveInGoodsProducerUrl;
+	}
+	
+	// 点击修改按钮触发事件
+	function openInGoodsProducerModifyDialog(){
+		var rows = $("#dg").datagrid("getSelections");
+		if(rows.length != 1){
+			$.messager.alert("系统提示","请选择一条需要修改的物品生产商！","warning");
+			return;
+		}
+		var row = rows[0];
+		$("#dlg").dialog("open").dialog("setTitle","修改物品生产商");
+		$("#fm").form("load",row);
+		$("#ingpcode").attr("readonly","readonly");
+		$("#ingpname").attr("readonly","readonly");
+		currentUrl = updateInGoodsProducerUrl;
+	}
+	
+	// 验证物品生产商编码的唯一性
+	$("#ingpcode").blur(function(){
+		var ingpcode = $("#ingpcode").val();
+		if(!/^\w{3,18}$/.test(ingpcode)){
+			$.messager.alert("系统提示","物品生产商编号不合法！必须3-18位、数字或字母、下划线","warning");
+			return;
+		}
+		$.ajax({
+			type:"post",
+			dataType:"json",
+			data:{ingpcode:ingpcode},
+			url:"../inGoodsProducer/checkIngpcode.do",
+			success:function(data){
+				if(data.hasIGP == "1"){
+					$.messager.alert("系统提示","物品生产商编码已存在，请重新输入!","warning");
+				}
+			},
+			error:function(){
+				$.messager.alert("系统提示","系统繁忙","warning");
+			}
+		});
+	});
+	
+	// 验证物品生产商名称的唯一性
+	$("#ingpname").blur(function(){
+		var ingpname = $("#ingpname").val();
+		if(!/^\S{3,18}$/.test(ingpname)){
+			$.messager.alert("系统提示","物品生产商名称不合法！必须3-18位、汉字、数字或字母、下划线","warning");
+			return;
+		}
+		$.ajax({
+			type:"post",
+			dataType:"json",
+			data:{ingpname:ingpname},
+			url:"../inGoodsProducer/checkIngpname.do",
+			success:function(data){
+				if(data.hasIGP == "1"){
+					$.messager.alert("系统提示","物品生产商名称已存在，请重新输入!","warning");
+				}
+			},
+			error:function(){
+				$.messager.alert("系统提示","系统繁忙","warning");
+			}
+		});
+	});
+	
+	// 验证物品生产商联系电话的唯一性
+	$("#ingpphone").blur(function(){
+		var ingpphone = $("#ingpphone").val();
+		if(!/^\w{7,11}$/.test(ingpphone)){
+			$.messager.alert("系统提示","物品生产商联系电话不合法！必须7-11位、数字或字母、下划线","warning");
+			return;
+		}
+		$.ajax({
+			type:"post",
+			dataType:"json",
+			data:{ingpphone:ingpphone},
+			url:"../inGoodsProducer/checkIngpphone.do",
+			success:function(data){
+				if(data.hasIGP == "1"){
+					$.messager.alert("系统提示","物品生产商联系电话已存在，请重新输入!","warning");
+				}
+			},
+			error:function(){
+				$.messager.alert("系统提示","系统繁忙","warning");
+			}
+		});
+	});
+	
+	// 点击 添加物品生产商/修改物品生产商 保存按钮触发事件
+	function saveInGoodsProducer(){
+		$("#fm").form("submit",{
+			url:currentUrl,
+			onSubmit:function(){
+				return $(this).form("validate"); 
+			},
+			success:function(data){
+				var data=eval("("+data+")");
+				if(data.res == true){
+					$.messager.alert("系统提示","保存成功");
+					closeInGoodsProducerAddDialog();
+					$("#dg").datagrid("reload");
+				}else{
+					$.messager.alert("系统提示","<font color=red>"+data.res+"</font>","warning");
+				}
+			},
+			error:function(){
+				$.messager.alert("系统提示","系统繁忙！","warning");
+			}
+		});
+		currentUrl = "";
+	}
+	
+	// 点击 添加物品生产商/修改物品生产商 关闭按钮触发事件
+	function closeInGoodsProducerAddDialog(){
+		$("#dlg").dialog("close");
+		$("#fm").form("clear");
+	}
+	
+	// 点击 删除按钮触发事件
+	function inGoodsProducerDelete(){
+		var rows = $("#dg").datagrid("getSelections");
+		if(rows.length == 0){
+			$.messager.alert("系统提示","请选择需要删除的物品生产商！","warning");
+			return;
+		}
+		var ingpids = "";
+		$.each(rows,function(index,row){
+			ingpids += row.ingpid + ",";
+		});
+		$.messager.confirm("删除提示","您确认要删除这<font color=red>"+rows.length+"</font>条数据吗？",
+				function(r){
+					if(r){
+						$.ajax({
+							type:"post",
+							dataType:"json",
+							data:{ingpids:ingpids},
+							url:"../inGoodsProducer/deleteInGoodsProducer.do",
+							success:function(data){
+								if(data.isDel == "1"){
+									$.messager.alert("系统提示","您已成功删除"+data.delRow+"条数据！");
+									$("#dg").datagrid("reload");
+								}else{
+									$.messager.alert("系统提示","删除失败！","warning");
+								}
+							},
+							error:function(){
+								$.messager.alert("系统提示！","系统繁忙！","error");
+							}
+						});
+					}
+			});
+	}
+</script>
+</html>

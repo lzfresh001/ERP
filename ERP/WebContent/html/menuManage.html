@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>菜单管理</title>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/default/easyui.css"/>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/icon.css"/>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js"></script>
+	
+</head>
+<body style="margin: 1px">
+	<table id="tt" title="菜单管理"  class="easyui-treegrid" fitColumns="true"  url="../auth/manageList.do" fit="true" toolbar="#tb" idField="authId" treeField="authName">
+	    <thead>
+			<tr>
+				<th field="cd" checkbox="true" align="center"></th>
+				<th data-options="field:'authName',width:50,align:'left'">菜单名称</th>
+				<th data-options="field:'authDescription',width:200,align:'center'">描述</th>
+			</tr>
+	    </thead>
+	</table>
+	<div id="tb">
+		<div>
+			<a href="javascript:openAuthAddDialog()" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+		    <a href="javascript:openAuthModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
+		    <a href="javascript:AuthDelete()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+	 	</div>
+	</div>
+	<!-- 添加菜单/修改菜单 dialog (start) -->
+	<div id="dlg" class="easyui-dialog" style="width: 600px;height: 310px;padding: 10px 20px" closed="true" buttons="#dlg-buttons" data-options="modal:true">
+	     <form id="fm" method="post">
+	     	<table cellspacing="5px">
+				<p>
+					<input type="hidden" id="authId" name="authId" />
+					<input type="hidden" id="parentId" name="parentId" />
+					<input type="hidden" id="state" name="state" />
+				</p>
+				<tr>
+					<td>菜单名称：</td>
+		      		<td>
+		      			<input type="text" id="authName" name="authName" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      	</tr>
+		      	<tr id="authPathInput">
+					<td>菜单Path：</td>
+		      		<td>
+		      			<input type="text" id="authPath" name="authPath" />
+		      		</td>
+		      	</tr>
+				<tr>
+					<td>菜单描述：</td>
+					<td colspan="4">
+				    	<textarea rows="7" cols="50" name="authDescription" id="authDescription"></textarea>
+				    </td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	
+	<div id="dlg-buttons">
+	      <a href="javascript:saveAuth()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+	      <a href="javascript: closeAuthAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div>
+	<!-- 添加菜单/修改菜单 dialog (end) -->
+</body>
+	<script type="text/javascript">
+		// treegrid加载成功后将其展开
+		$(function(){
+			$("#tt").treegrid({
+				onLoadSuccess:function(){
+					$("#tt").treegrid("expand","1");
+				}
+			});
+		});
+		
+		// 点击关闭按钮 关闭相应的添加/修改菜单的 dialog
+		function closeAuthAddDialog(){
+			$("#dlg").dialog("close");
+			$("#fm").form("clear");
+		}
+		
+		// 添加菜单时判断菜单名的唯一性
+		$("#authName").blur(function(){
+			var authName = $("#authName").val(); // 获取输入框输入的菜单名称
+			if(!/^\S{4,18}$/.test(authName)){
+				$.messager.alert("系统提示","菜单名称不合法！必须为4—18位、汉字、数字、字母或下划线","warning");
+				return;
+			}
+			$.ajax({
+				type:"post",
+				dataType:"json",
+				data:{
+					authName:authName
+				},
+				url:"../auth/checkAuthName.do",
+				success:function(data){
+					if(data.hasAuth == "1"){
+						$.messager.alert("系统提示","菜单名已存在，请重新输入！","warning");
+					}
+				},
+				error:function(){
+					$.messager.alert("系统提示","系统繁忙！","error");
+				}
+			});
+		});
+		
+		// 添加菜单时判断菜单Path的唯一性
+		$("#authPath").blur(function(){
+			var authPath = $("#authPath").val(); // 获取path输入框输入的值
+			//alert(authPath);
+			if(!/^\w{4,18}\.(html)$/.test(authPath)){
+				$.messager.alert("系统提示","菜单Path不合法！如：userManage.html","warning");
+				return;
+			}
+			$.ajax({
+				type:"post",
+				dataType:"json",
+				data:{
+					authPath:authPath
+				},
+				url:"../auth/checkAuthPath.do",
+				success:function(data){
+					if(data.hasAuth == "1"){
+						$.messager.alert("系统提示","菜单Path已存在，请重新输入！","warning");
+					}
+				},
+				error:function(){
+					$.messager.alert("系统提示","系统繁忙！","error");
+				}
+			});
+		});
+		
+		// 定义添加菜单/修改修改的URL
+		var saveAuthUrl = "../auth/saveAuth.do";
+		var updateAuthUrl = "../auth/updateAuth.do";
+		var currentUrl = "";
+		
+		// 打开添加菜单弹框
+		function openAuthAddDialog(){
+			var selectedRows = $("#tt").treegrid("getSelections"); // 获取所有选中的节点
+			if(selectedRows.length != 1){
+				$.messager.alert("系统提示","请选择一个父菜单再添加该菜单！","warning");
+				return;
+			}
+			var selectedRow = selectedRows[0];
+			var authId = selectedRow.authId; 
+			var parentId = selectedRow.parentId;
+			//alert(parentId);
+			//alert(parentId==-1);
+			var authState = selectedRow.authState;
+			// var addState = ""; // 初始化要添加的时state
+			if(parentId != -1 && parentId != 1){
+				$.messager.alert("系统提示","该菜单为最后一级菜单不能添加子菜单！","warning");
+				return;
+			}else{
+				if(authId == 999 || authId == 1000){
+					$.messager.alert("系统提示","该菜单为最后一级菜单不能添加子菜单！","warning");
+					return;
+				}else{
+					if(authId == 1){
+						//addState = "closed";
+						$("#authPathInput").hide(); // 隐藏authPath输入框
+					}else{
+						//addState = "open";
+						$("#authPathInput").show(); // 显示authPath输入框
+					}
+					$("#dlg").dialog("open").dialog("setTitle","添加菜单");
+					currentUrl = saveAuthUrl;
+					$("#parentId").val(authId); // 将选中的父菜单的authId作为parentId放到隐藏域中
+					$("#state").val("open"); // 将state放到隐藏域中
+				}
+			}
+		}
+		
+		// 打开修改菜单弹框
+		function openAuthModifyDialog(){
+			var selectedRows = $("#tt").treegrid("getSelections"); // 获取所有选中的节点
+			if(selectedRows.length != 1){
+				$.messager.alert("系统提示","请选择一个需要修改菜单！","warning");
+				return;
+			}
+			var selectedRow = selectedRows[0];
+			var parentId = selectedRow.parentId;
+			var authId = selectedRow.authId;
+			alert(parentId);
+			if(parentId == -1){
+				$.messager.alert("系统提示","不能修改！","warning");
+				return;
+			}else{
+				if(parentId == 1){
+					if(authId == 999 || authId == 1000){
+						$.messager.alert("系统提示","不能修改！","warning");
+						return;
+					}else{
+						$("#authPathInput").hide(); // 隐藏authPath输入框
+					}
+				}else{
+					$("#authPathInput").show(); // 显示authPath输入框
+				}
+				
+			}
+			$("#dlg").dialog("open").dialog("setTitle","修改菜单");
+			$("#fm").form("load",selectedRow);
+			$("#authName").attr("readonly","readonly");
+			$("#authPath").attr("readonly","readonly");
+			currentUrl = updateAuthUrl;
+		}
+		
+		// 添加/修改 菜单
+		function saveAuth(){
+			var authName = $("#authName").val(); // 获取输入框中的值
+			var authPath = $("#authPath").val();
+			var authDescription = $("#authDescription").val();
+			//var parentId = $("#parentId").val();
+			//alert(authName +":"+ authPath +":"+ authDescription);
+			//alert(parentId);
+			if(authPath == null || authPath == ""){
+				if(!/^\S{4,18}$/.test(authName)){
+					$.messager.alert("系统提示","菜单名称不合法！必须为4—18位、汉字、数字、字母或下划线","warning");
+					return;
+				}else if(!/^\S{0,100}$/.test(authDescription)){
+					$.messager.alert("系统提示","菜单描述不合法！必须为0—100位、汉字、数字、字母或下划线","warning");
+					return;
+				}
+			}else {
+				if(!/^\S{4,18}$/.test(authName)){
+					$.messager.alert("系统提示","菜单名称不合法！必须为4—18位、汉字、数字、字母或下划线","warning");
+					return;
+				}else if(!/^\w{4,18}\.(html)$/.test(authPath)){
+					$.messager.alert("系统提示","菜单Path不合法！如：userManage.html","warning");
+					return;
+				}else if(!/^\S{0,100}$/.test(authDescription)){
+					$.messager.alert("系统提示","菜单描述不合法！必须为0—100位、汉字、数字、字母或下划线","warning");
+					return;
+				}
+			}
+			$("#fm").form("submit",{
+				url:currentUrl,
+				success:function(data){
+					var data=eval("("+data+")");
+					if(data.res == true){
+						$.messager.alert("添加提示","保存成功！");
+						closeAuthAddDialog();
+						$("#tt").treegrid("reload");
+					}else{
+						$.messager.alert("添加提示","<font color=red>"+data.res+"</font>","warning");
+					}
+				},
+				error:function(){
+					$.messager.alert("系统提示","系统繁忙！","warning");
+				}
+			});
+			currentUrl = "";
+		}
+		
+		// 删除菜单
+		function AuthDelete(){
+			var selectedRows = $("#tt").treegrid("getSelections"); // 获取所有选中的节点
+			if(selectedRows.length != 1){
+				$.messager.alert("系统提示","请选择需要删除的菜单！","warning");
+				return;
+			}
+			var selectedRow = selectedRows[0];
+			var authId = selectedRow.authId;
+			var parentId = selectedRow.parentId;
+			if(authId == 1 || authId == 999 || authId == 1000 ){
+				$.messager.alert("系统提示","不支持删除！","error");
+				return;
+			}
+			if(parentId == 1){
+				$.messager.confirm("删除提示","您确认要删除<font color=red>"+"该菜单及其子菜单"+"</font>吗？",
+						function(r){
+							if(r){
+								$.post("../auth/deleteAuthAndchildren.do",{authId:authId},
+									function(data){
+										if(data.isDel == true){
+											$.messager.alert("删除提示","您已成功删除该菜单及其子菜单！");
+											$("#tt").treegrid("reload");
+										}else {
+											$.messager.alert("删除提示",data.isDel);
+										}
+									},"json");
+							}		
+					});
+			}else{
+				$.messager.confirm("删除提示","您确认要删除该<font color=red>"+"菜单"+"</font>吗？",
+						function(r){
+							if(r){
+								$.post("../auth/deleteAuth.do",{authId:authId},
+									function(data){
+										if(data.isDel == true){
+											$.messager.alert("删除提示","您已成功删除该菜单！");
+											$("#tt").treegrid("reload");
+										}else {
+											$.messager.alert("删除提示",data.isDel);
+										}
+									},"json");
+							}		
+					});
+			}
+		}
+	</script>
+</html>

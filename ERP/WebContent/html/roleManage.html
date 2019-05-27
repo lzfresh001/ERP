@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>角色管理</title>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/default/easyui.css"/>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/icon.css"/>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body style="margin: 1px">
+	<table id="dg" title="角色管理" class="easyui-datagrid" fitColumns="true" pagination="true" pageList="[5,6,7,8]" pageSize="5" rownumbers="true" url="../role/findAllRole.do" fit="true" toolbar="#tb">
+		<thead>
+			<th field="cd" checkbox="true" align="center"></th>
+			<th field="roleId" width="50" align="center">编号</th>
+			<th field="roleName" width="100" align="center">角色名称</th>
+			<th field="roleDescription" width="200" align="center">备注</th>
+		</thead>
+	</table>
+	<div id="tb">
+		<div>
+			<a href="javascript:openRoleAddDialog()" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+		    <a href="javascript:openRoleModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
+		    <a href="javascript:RoleDelete()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+	 	    <a href="javascript:openAuthDialog()" class="easyui-linkbutton" iconCls="icon-roleManage" plain="true">角色授权</a>
+	 	</div>
+		<div>
+			&nbsp;角色名称：&nbsp;<input type="text" name="s_roleName" id="s_roleName" size="20" onkeydown="if(event.keyCode==13) searchRole()"/>
+			<a href="javascript:searchRole()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	</div>
+	<!-- 角色授权 -->
+	<div id="dlg2" class="easyui-dialog" style="width: 300px;height: 500px;padding:10px 20px;" closed="true" buttons="#dlg2-buttons">
+		<ul id="tree" class="easyui-tree"></ul>
+		<input type="hidden" id="clickTree" />
+	</div>
+	<div id="dlg2-buttons">
+		<a href="javascript:saveAuth()" class="easyui-linkbutton" iconCls="icon-ok" plain="true">授权</a>
+		<a href="javascript:closeAuthDialog()" class="easyui-linkbutton" iconCls="icon-cancel" plain="true">关闭</a>
+	</div>
+	
+	<!-- 添加角色/修改角色 dialog (start) -->
+	<div id="dlg3" class="easyui-dialog" style="width: 600px;height: 310px;padding: 10px 20px" closed="true" buttons="#dlg3-buttons" data-options="modal:true">
+	     <form id="fm" method="post">
+	     	<table cellspacing="5px">
+				<p><input type="hidden" id="roleId" name="roleId" /></p>
+				<tr>
+					<td>角色名称：</td>
+		      		<td>
+		      			<input type="text" id="roleName" name="roleName" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      	</tr>
+				<tr>
+					<td>备注：</td><td colspan="4">
+				     <textarea rows="7" cols="50" name="roleDescription" id="roleDescription"></textarea>
+				    </td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	
+	<div id="dlg3-buttons">
+	      <a href="javascript:saveRole()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+	      <a href="javascript: closeRoleAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	<!-- 添加角色/修改角色 dialog (end) -->
+</body>
+<script type="text/javascript">
+	// 模糊查询角色
+	function searchRole(){
+		var s_roleName = $("#s_roleName").val(); // 获取模糊查询条件
+		$("#dg").datagrid("load",{
+			s_roleName:s_roleName
+		});
+	}
+	
+	// 添加角色时判断角色名的唯一性
+	$("#roleName").blur(function(){
+		var roleName = $("#roleName").val(); //获取添加时输入的角色名称
+		if(!/^\S{3,18}$/.test(roleName)){
+			$.messager.alert("系统提示","角色名称不合法！必须为3—18位、汉字、数字、字母或下划线","warning");
+			return;
+		}
+		$.ajax({
+			type:"post",
+			dataType:"json",
+			data:{
+				roleName:roleName
+			},
+			url:"../role/checkRoleName.do",
+			success:function(data){
+				if(data.hasRole == "1"){
+					$.messager.alert("系统提示","角色名已存在，请重新输入！","warning");
+				}
+			},
+			error:function(){
+				$.messager.alert("系统提示","系统繁忙！","warning");
+			}
+		});
+	});
+	
+	// 点击关闭按钮 关闭相应的添加/修改角色的 dialog
+	function closeRoleAddDialog(){
+		$("#dlg3").dialog("close");
+		$("#fm").form("clear");
+	}
+	
+	// 定义添加角色/修改角色的URL
+	var saveRoleUrl = "../role/saveRole.do";
+	var updateRoleUrl = "../role/updateRole.do";
+	var currentUrl = "";
+	
+	// 打开添加角色弹框
+	function openRoleAddDialog(){
+		$("#dlg3").dialog("open").dialog("setTitle","添加角色信息");
+		currentUrl = saveRoleUrl;
+	}
+	
+	// 打开修改角色弹框
+	function openRoleModifyDialog(){
+		var selectedRows = $("#dg").datagrid("getSelections");
+		if(selectedRows.length != 1){
+			$.messager.alert("系统提示","请选择一条需要修改的角色信息！","warning");
+			return;
+		}
+		var row = selectedRows[0];
+		$("#dlg3").dialog("open").dialog("setTitle","修改角色信息");
+		$("#fm").form("load",row);
+		$("#roleName").attr("readonly","readonly");
+		currentUrl = updateRoleUrl;
+	}
+	
+	// 添加角色/修改角色
+	function saveRole(){
+		var roleName = $("#roleName").val();
+		var roleDescription = $("#roleDescription").val();
+		if(!/^\S{3,18}$/.test(roleName)){
+			$.messager.alert("系统提示","角色名称不合法！必须为3—18位、汉字、数字、字母或下划线","warning");
+			return;
+		}else if(!/^\S{0,100}$/.test(roleDescription)){
+			$.messager.alert("系统提示","角色描述不合法！必须为0—100位、汉字、数字、字母或下划线","warning");
+			return;
+		}else{
+			$("#fm").form("submit",{
+				url:currentUrl,
+				success:function(data){
+					var data=eval("("+data+")");
+					if(data.res == true){
+						$.messager.alert("添加提示","保存成功！");
+						closeRoleAddDialog();
+						$("#dg").datagrid("reload");
+					}else{
+						$.messager.alert("添加提示","<font color=red>"+data.res+"</font>","warning");
+					}
+				},
+				error:function(){
+					$.messager.alert("系统提示","系统繁忙！","warning");
+				}
+			});
+			currentUrl = "";
+		}
+	}
+	
+	// 删除角色
+	function RoleDelete(){
+		var selectedRows = $("#dg").datagrid("getSelections");
+		if(selectedRows.length == 0){
+			$.messager.alert("系统提示","请选择要删除的角色信息！","warning");
+			return;
+		}
+		var strRoleIds = [];
+		for(var i=0;i<selectedRows.length;i++){
+			strRoleIds.push(selectedRows[i].roleId);
+		}
+		var roleIds = strRoleIds.join(",");
+		$.messager.confirm("删除提示","您确认要删除这<font color=red>"+selectedRows.length+"</font>条数据吗？",
+			function(r){
+				if(r){
+					$.post("../role/deleteRole.do",{delIds:roleIds},
+						function(data){
+							if(data.isDel == true){
+								$.messager.alert("删除提示","您已成功删除"+data.delRows+"条数据！");
+								$("#dg").datagrid("reload");
+							}else {
+								$.messager.alert("删除提示",data.isDel);
+							}
+						},"json");
+				}		
+		});
+	}
+	
+	// 定义选中节点的方法
+	/* function checkNode(node){
+		$("#tree").tree("select", node.target);
+	} */
+	
+	// 打开角色授权的 dialog
+	function openAuthDialog(){
+		var selectedRows = $("#dg").datagrid("getSelections");
+		if(selectedRows.length != 1){
+			$.messager.alert("系统提示","请选择一条要授权的角色！");
+			return;
+		}
+		var row=selectedRows[0];
+		$("#dlg2").dialog("open").dialog("setTitle","角色授权");
+		url="../auth/authList.do?roleId="+row.roleId;
+		$("#tree").tree({
+			lines:true,
+			url:url,
+			checkbox:true,
+			cascadeCheck:false,
+			onLoadSuccess:function(){
+				$("#tree").tree("expandAll");
+			},
+			onCheck:function(node,checked){
+				$("#clickTree").val("ct");
+				var fNode = $("#tree").tree("getParent",node.target);
+				var sNode = $("#tree").tree("getChildren",node.target);
+				if(checked){
+					$("#tree").tree("check",fNode.target);
+					/* if(sNode.length > 0){
+						$.each(sNode,function(index,snode){
+							//alert(node);
+							$("#tree").tree("check",snode.target);
+						});
+					} */
+				}else{
+					$("#tree").tree("uncheck",fNode.target);
+					/* if(sNode.length > 0){
+						$.each(sNode,function(index,snode){
+							//alert(node);
+							$("#tree").tree("uncheck",snode.target);
+						});
+					} */
+				}
+			}
+		});
+	}
+	
+	// 点击关闭按钮 角色授权的 dialog
+	function closeAuthDialog(){
+		$("#dlg2").dialog("close");
+	}
+	
+	// 角色授权
+	function saveAuth(){
+		var selectedRows = $("#dg").datagrid("getSelections");
+		if(selectedRows.length != 1){
+			$.messager.alert("系统提示","请选择一条要授权的角色！");
+			return;
+		}
+		var dgRow=selectedRows[0];
+		var roleId = dgRow.roleId; // 获取权限roleId
+		var isCilck = $("#clickTree").val(); // 是否点击复选框
+		var auths = $("#tree").tree("getChecked");
+		var authIds = ""; // 初始化authIds
+		$.each(auths,function(index,node){
+			authIds += node.id + ",";
+		});
+		//alert(roleId);
+		//alert(authIds);
+		//alert(isCilck);
+		if(isCilck == "ct"){
+			if(authIds == "" || authIds == "1," || authIds == "54,"){
+				$.messager.alert("系统提示","系统名称和退出按钮为必备菜单！","info");
+			}else{
+				$.messager.confirm("系统提示","您确定要修改<font color=red>"+dgRow.roleName+"</font>的权限吗？",
+						function (r){
+							$.post("../role/updateAuthIds.do",{roleId:roleId,authIds:authIds},
+								function(data){
+									if(data.isUpd == "1"){
+										$.messager.alert("系统提示","您已成功修改<font color=green>"+dgRow.roleName+"</font>的权限！","info");
+										//$("#dg").datagrid("reload");
+									}else {
+										$.messager.alert("删除提示","授权失败！","warning");
+									}
+								},"json");
+					},); 
+				closeAuthDialog();
+			}
+		}else{
+			$.messager.alert("系统提示","您还没有对菜单进行操作！","info");
+		}
+	}
+</script>
+</html>

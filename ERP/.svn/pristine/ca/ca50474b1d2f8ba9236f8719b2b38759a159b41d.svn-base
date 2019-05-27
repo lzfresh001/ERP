@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>采购订单</title>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/default/easyui.css"/>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/icon.css"/>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<div class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'"
+		style="height: 32px; background-color: #E0ECFF; width: 1235px; background-position: initial initial; background-repeat: initial initial;">
+		<div style="float: right; padding-right: 20px">
+			订单名称: <input class="easyui-validatebox" style="width: 80px" name="s_inboname" id="s_inboname"/> 
+			订单签订人: <input class="easyui-validatebox" style="width: 80px" name="s_businame" id="s_businame"/> 
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" onclick="inBuyOrderManager_search()">查询</a>
+		</div>
+		<div>
+			<a id="inBuyOrderManager_newbtn" href="javascript:void(0)"
+				onclick="openDiolog()"
+				class="easyui-linkbutton" iconCls="icon-add" plain="true">新建</a>
+		    <a  id="inBuyOrderManager_editbtn" href="javascript:void(0)"
+				onclick="editInBuyOrder()"
+				class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a> 
+			<a	id="inBuyOrderManager_delbtn" href="javascript:void(0)"
+				onclick="delInBuyOrder()"
+				class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a> 
+		    <a	id="inBuyOrderManager_savebtn" href="javascript:void(0)"
+				onclick="saveForm()" class="easyui-linkbutton"
+				iconCls="icon-ok" plain="true">生成订单</a>
+			<a  id="inBuyOrderManager_canclebtn" href="javascript:void(0)"
+				onclick="cancleInBuyOrder()"
+				class="easyui-linkbutton" iconCls="icon-cancel" plain="true">取消</a>
+		</div>
+	</div>
+	<div data-options="region:'west',split:true"
+		style="width: 575px;">
+		<div class="easyui-layout" data-options="fit:true">		
+			<div data-options="region:'center'"> 		
+				<table id="dg" title="订单主表全部列表" class="easyui-datagrid" fitColumns="true" pagination="true" rownumbers="true" url="../inBuyOrder/findAllInBuyOrder.do" fit="true" singleSelect="true">
+			     	<thead>
+			     		<tr>
+							<th field="inbocode" align="center" data-options="sortable:true">编码</th>
+							<th field="inboname" align="center" data-options="sortable:true">名称</th>
+							<th field="businame" align="center" data-options="sortable:true">下单人</th>
+							<th field="inbodate" align="center" sortable="true">订单签订时间</th>
+							<th field="inbototalprice" align="center" sortable="true">总价</th>
+							<th field="inboofferprice" align="center" sortable="true">优惠金额</th>
+							<th field="inboactualprice" align="center" sortable="true">实际金额</th>
+							<th field="intwiname" align="center" sortable="true">运输方式</th>
+							<th field="indwname" align="center" sortable="true">交货方式</th>
+							<th field="inbodeliverydate" align="center" sortable="true">交货时间</th>
+							<th field="inbodeliveryaddress" align="center" sortable="true">交货地点</th>
+							<th field="remark" align="center" sortable="true">备注</th>
+							<th field="optname" align="center" sortable="true">操作人</th>
+
+						</tr>
+			   		</thead>
+			   	</table>
+			</div>	
+		</div>
+	</div>
+	<!--点击主表 添加 弹框  -->
+	<div id="dlg" class="easyui-dialog" style="width: 600px;height: 500px;padding: 10px 20px" closed="true" buttons="#dlg-buttons1" data-options="modal:true">
+	     <table id="dg4" class="easyui-datagrid" fitColumns="true" pagination="true" rownumbers="true" url="../inBuyContract/findAllInBuyContract.do" fit="true" singleSelect="true">
+			     	<thead>
+			     		<tr>
+							<th field="inbccode" align="center" data-options="sortable:true">编码</th>
+							<th field="inbcname" align="center" data-options="sortable:true">名称</th>
+							<th field="businame" align="center" data-options="sortable:true">合同人</th>
+							<th field="inbccontent" align="center" data-options="sortable:true">合同内容</th>
+							<th field="insiname" align="center" data-options="sortable:true">供应商名称</th>
+							<th field="inbcdate" align="center" sortable="true">合同签订时间</th>
+							<th field="inbtname" align="center" sortable="true">采购类型</th>
+							<th field="inbctotalprice" align="center" sortable="true">总价</th>
+							<th field="inbcofferprice" align="center" sortable="true">优惠金额</th>
+							<th field="inbcactualprice" align="center" sortable="true">实际金额</th>
+							<th field=inbcadvancemoney align="center" sortable="true">预付款金额</th>
+							<th field="intwiname" align="center" sortable="true">运输方式</th>
+							<th field="indwname" align="center" sortable="true">交货方式</th>
+							<th field="inbcdeliverydate" align="center" sortable="true">交货时间</th>
+							<th field="inbcdeliveryaddress" align="center" sortable="true">交货地点</th>
+							<th field="remark" align="center" sortable="true">备注</th>
+							<th field="optname" align="center" sortable="true">操作人</th>
+
+						</tr>
+			   		</thead>
+			   	</table>
+	</div>
+	<div id="dlg-buttons1">
+	      <a href="javascript:newInBuyOrder()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+	      <a href="javascript: closeUserAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	
+	
+	
+	<div data-options="region:'center'">
+		<div id="tab_show" align="center" style="height:250px;background-color: #F7F7F7;margin-top:-16px" >
+			<h3 align="center">编辑框</h3>
+			<form id="inBuyOrderEditForm">
+				<input type="hidden" name="inboid" id="inboid" />
+				<input type="hidden" name="busiid" id="busiid" />
+				<input type="hidden" name="businame" id="businame" />
+				<input type="hidden" name="busideptid" id="busideptid" />
+				<table>
+					<tr>
+						<td><label>订单编码：</label></td>
+						<td><input class="easyui-validatebox" type="text"
+						id="inbocode" name="inbocode" data-options="required:true" maxlength="20" width="200px"/></td>
+					
+						<td><label>订单名称：</label></td>
+						<td><input class="easyui-validatebox" type="text"
+						id="inboname" name="inboname" data-options="required:true" maxlength="20" width="200px"/></td>
+					</tr>
+					<tr>
+						<td><label>备注：</label></td>
+						<td><input class="easyui-validatebox" type="text"
+						id=remark name="remark" data-options="required:true" maxlength="200" width="200px" height="400px" /></td>
+					</tr>
+				</table>
+			</form>
+		</div>
+		
+		<div style="clear: both;"></div>
+		 <div class="easyui-tabs" style="height: 350px;margin-top: 1px;">
+			<div title="采购订单子表信息列表" fit="true" data-options="border:true">
+				<table id="dgDetail" class="easyui-datagrid" fitColumns="true" pagination="" rownumbers="true"  fit="true">
+			     	<thead>
+			     		<tr>
+							<th field="ingiid" width="50" align="center" hidden="true" data-options="">ID</th>
+							<th field="inginame" width="50" align="center" data-options="">名称</th>
+							<th field="mycou" width="50" align="center" data-options="editor:{type:'numberbox',options:{disabled:false,required: true}}" >数量</th>
+							<th field="myprice" width="50" align="center" data-options="editor:{type:'validatebox',options:{disabled:false,required: true,validType:'princeNum'}}">单价</th>
+							<th field="mymoney" width="50" align="center" data-options="">总价</th>
+							<th field="remark" width="50" align="center" data-options="">备注</th>
+						</tr>
+			   		</thead>
+			   	</table>
+				
+			</div>
+		</div>
+		
+		
+	
+	</div>
+</div>
+	 <!-- 添加商品 dialog (start) -->
+	 <!-- <div id="dlg" class="easyui-dialog" style="width: 950px;height: 450px;padding: 0px 0px" closed="true" buttons="#dlg-buttons" data-options="modal:true">
+		商品列表展示--start
+	<table id="dg1" class="easyui-datagrid" fitColumns="true" pagination="true"
+		rownumbers="true" url="../inGoodsInfo/queryAllInGoodsInfo.do"
+		fit="true" toolbar="#tb1">
+		<thead>
+			<tr>
+				<th field="cb" checkbox="true" align="center" ></th>
+				<th field="ingiid" width="50px" align="center" hidden="true">商品ID</th> 
+				<th field="ingicode" width="50px" align="center">商品编码</th> 
+				<th field="inginame" width="50px" align="center">商品名称</th>
+				<th field="ingiformat" width="50px" align="center">商品规格</th>
+				<th field="ingishelflife" width="50px" align="center">保质期(天)</th>
+				<th field="ingcname" width="50px" align="center">商品类别</th>
+				<th field="ingtname" width="50px" align="center">商品类型</th>
+				<th field="ingpname" width="50px" align="center">生产厂家</th>
+				<th field="optname" width="50px" align="center">操作人</th>
+				<th field="remark" width="50px" align="center">备注</th>
+			</tr>
+		</thead>
+	</table>
+	商品列表展示--end
+	商品操作按钮--start
+	<div id="tb1">
+		<div>&nbsp;商品名称：&nbsp;<input type="text" name="s_inginame" id="s_inginame" size="20" onkeydown="if(event.keyCode==13) searchGoodsInfo()"/>
+			<a href="javascript:searchGoodsInfo()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	</div>
+	商品操作按钮--end
+	<div id="dlg-buttons">
+	      <a href="javascript:saveInGoodsInfo()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+	      <a href="javascript: closeInGoodsInfoAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	添加商品 dialog (end)
+	</div> -->
+</body>
+<script type="text/javascript">
+
+	//点击添加商品模糊查询按钮触发事件
+	function searchGoodsInfo(){
+		var inginame = $("#s_inginame").val();
+		$("#dg1").datagrid("load",{
+			inginame:inginame
+		});
+	}
+
+	// 点击主表查询按钮触发事件
+	function inBuyOrderManager_search(){
+		var s_inboname = $("#s_inboname").val();
+		var s_businame = $("#s_businame").val();
+		$("#dg").datagrid("load",{
+			s_inboname:s_inboname,
+			s_businame:s_businame,
+		});
+	}
+	
+	// 点击主表某一行时加载对应的系(细)表信息
+	$(function(){
+		init();
+		$("#dg").datagrid({
+			onClickRow:function(index,row){
+				$("#inBuyOrderEditForm").form("load",row); // 将点击行的主表信息加载到编辑表单
+				$("#dgDetail").datagrid("loadData",row.inBuyOrderDetails); // 将点击行的系(细)表加载到字表信息列表
+			} 
+		});
+	});
+	
+	// 点击主表取消按钮触发事件
+	function cancleInBuyOrder(){
+		init();
+	}
+	
+	// 定义主表新建/修改的URL
+	var addUrl = "../inBuyOrder/addInBuyOrder.do";
+	var updateUrl = "../inBuyOrder/updateInBuyOrder.do";
+	var currentUrl = "";
+	
+	// 初始化采购订单页面
+	function init(){
+		$("#inBuyOrderEditForm").form("clear"); // 清空inBuyOrderEditForm表单
+		$("#dgDetail").datagrid("loadData",{   // 清空dgDetail数据网格
+			total:0,
+			rows:[]
+		});
+		$("#inBuyOrderEditForm").form("disableValidation"); // 取消form表单输入框验证
+		$("#inBuyOrderEditForm :input").attr("disabled","disabled"); // 将表单的输入框置为不可编辑状态
+		$("#inBuyOrderManager_savebtn").linkbutton({disabled:true}); // 将主表的保存按钮禁掉
+		$("#inBuyOrderManager_canclebtn").linkbutton({disabled:true});// 将主表的取消按钮禁掉
+		$("#inBuyOrderDeatilAdd").linkbutton({disabled:true});// 将子表添加按钮禁掉
+		$("#inBuyOrderDeatilUpdate").linkbutton({disabled:true});// 将子表修改按钮禁掉
+		$("#inBuyOrderDeatilDel").linkbutton({disabled:true});// 将子表删除按钮禁掉
+		$("#inBuyOrderDeatilSav").linkbutton({disabled:true});// 将子表保存按钮禁掉
+		$("#inBuyOrderManager_newbtn").linkbutton({disabled:false}); // 将主表新建按钮释放
+		$("#inBuyOrderManager_editbtn").linkbutton({disabled:false});// 将主表修改按钮释放
+		$("#inBuyOrderManager_delbtn").linkbutton({disabled:false});// 将主表删除按钮释放
+	}
+	// 点击主表新建按钮触发事件
+	function openDiolog(){
+		$("#dlg").dialog("open").dialog("setTitle","选择申请表");
+		$("#dg4").datagrid("load");
+		
+	}
+	// 点击主表新建弹框 保存按钮触发事件
+	function newInBuyOrder(){
+		$("#dgDetail").datagrid("loadData",{   // 清空dgDetail数据网格
+			total:0,
+			rows:[]
+		});
+		var row=$("#dg4").datagrid("getSelected");
+		if(row==null){
+			$.messager.alert("系统提示","请选择一条数据","error");
+			return;
+		}
+		$("#dlg").dialog("close");
+		alert(row.busiid);
+		var rows=row.inBuyContractDetails;
+		$("#dgDetail").datagrid("loadData",rows);
+		
+		$("#inBuyOrderEditForm :input").removeAttr("disabled"); // 移出form表单不可编辑属性
+		$("#inBuyOrderEditForm").form("enableValidation"); // 开启form表单输入框验证
+		$("#inBuyOrderEditForm").form("clear"); // 清空inBuyOrderEditForm表单
+		$("#inBuyOrderEditForm").form("load",row);
+		$("#inBuyOrderManager_editbtn").linkbutton({disabled:true}); // 将主表修改按钮禁掉
+		$("#inBuyOrderManager_delbtn").linkbutton({disabled:true}); // 将主表删除按钮禁掉
+		$("#inBuyOrderManager_submitbtn").linkbutton({disabled:true}); // 将主表提交按钮禁掉
+		$("#inBuyOrderManager_canclebtn").linkbutton({disabled:false}); // 将主表的取消按钮释放
+		$("#inBuyOrderManager_savebtn").linkbutton({disabled:false});//主表保存按钮释放
+		currentUrl = addUrl;
+	}
+	//点击主表 新建 弹框 取消按钮
+	function closeUserAddDialog(){
+		$("#dlg").dialog("close");
+		init();
+	}
+	//点击主表修改按钮
+	function editInBuyOrder(){
+		var row=$("#dg").datagrid("getSelected");
+		if(row==null){
+			$.messager.alert("系统提示","请选择要修改的数据","error");
+			return;
+		}
+		$("#inBuyOrderEditForm :input").removeAttr("disabled"); // 移出form表单不可编辑属性
+		$("#inBuyOrderEditForm").form("enableValidation"); // 开启form表单输入框验证
+		$("#inBuyOrderManager_newbtn").linkbutton({disabled:true}); //主表新建按钮禁掉
+		$("#inBuyOrderManager_editbtn").linkbutton({disabled:true}); // 将主表修改按钮禁掉
+		$("#inBuyOrderManager_delbtn").linkbutton({disabled:true}); // 将主表删除按钮禁掉
+		$("#inBuyOrderManager_submitbtn").linkbutton({disabled:true}); // 将主表提交按钮禁掉
+		$("#inBuyOrderManager_canclebtn").linkbutton({disabled:false}); // 将主表的取消按钮释放
+		$("#inBuyOrderManager_savebtn").linkbutton({disabled:false});//主表保存按钮释放
+		currentUrl = updateUrl;
+	}
+	//FORM表单序列化转对象
+	function serializeObject(form) {
+		var o = {};
+		$.each(form.serializeArray(), function(index) {
+			if (o[this['name']]) {
+				o[this['name']] = o[this['name']] + "," + this['value'];
+			} else {
+				o[this['name']] = this['value'];
+			}
+		});
+		return o;
+	}
+	
+	// 点击主表保存按钮触发事件
+	function saveForm(){
+		var editForm = $("#inBuyOrderEditForm"); // 获取form表单数据
+		var inBuyOrder = serializeObject(editForm);
+		var inBuyOrderDetail = $("#dgDetail").datagrid("getRows"); // 获取子表所有信息
+		if(inBuyOrderDetail != null){ //如果子表信息非空，则将子表数据添加到workBook对象中去
+			inBuyOrder.inBuyOrderDetails = inBuyOrderDetail;
+		}
+		alert(JSON.stringify(inBuyOrder));
+		$.ajax({
+			type:"post",
+			dataType:"json",
+			contentType:"application/json;charset=UTF-8", //如果后台使用@RequestBoby接收参数，ajax提交必须写该行
+			data:JSON.stringify(inBuyOrder),	//将对象转换成json串，进行传值
+			url:currentUrl,
+			success:function(data){
+				if(data.res == "1"){
+					$.messager.alert("系统提示","保存成功","info");
+					$("#dg").datagrid("reload");
+					init();
+				}else{
+					$.messager.alert("系统提示",data.res,"warning");
+					$("#dg").datagrid("reload");
+					init();
+				}
+			},
+			error:function(){
+				$.messager.alert("系统提示","系统繁忙！","error");
+			}
+		});
+		currentUrl = "";
+	}
+	
+	//点击主表删除按钮
+	function delInBuyOrder(){
+		var row=$("#dg").datagrid("getSelected");
+		if(row==null){
+			$.messager.alert("系统提示","请选择要修改的数据","error");
+			return;
+		}
+		
+		$.messager.confirm("删除提示","您确定要删除名称为<font color=red>"+row.inboname+"</font>的订单吗？",
+				function(r){
+					if(r){
+						$.ajax({
+							type:"post",
+							dataType:"json",
+							data:{inboid:row.inboid},
+							url:"../inBuyOrder/deleteInBuyOrder.do",
+							success:function(data){
+								if(data.res == "1"){
+									$.messager.alert("删除提示","删除成功！","info");
+									$("#dg").datagrid("reload");
+									init();
+								}else{
+									$.messager.alert("删除提示","删除失败！","warning");
+									$("#dg").datagrid("reload");
+									init();
+								}
+							},
+							error:function(){
+								$.messager.alert("系统提示","系统繁忙！","error");
+							}
+						});
+					}	
+			});
+	}
+	
+	
+
+	
+	
+	
+	
+</script>
+</html>

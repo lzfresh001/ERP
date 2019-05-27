@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>商品列表</title>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/default/easyui.css"/>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/icon.css"/>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body style="margin: 1px">
+	<!-- 商品列表展示--start -->
+	<table id="dg" title="商品列表" class="easyui-datagrid" fitColumns="true" pagination="true"
+		rownumbers="true" url="../inGoodsInfo/queryAllInGoodsInfo.do"
+		fit="true" toolbar="#tb">
+		<thead>
+			<tr>
+				<th field="cb" checkbox="true" align="center" ></th>
+				<th field="ingiid" width="50px" align="center" hidden="true">商品ID</th> 
+				<th field="ingicode" width="50px" align="center">商品编码</th> 
+				<th field="inginame" width="50px" align="center">商品名称</th>
+				<th field="ingiformat" width="50px" align="center">商品规格</th>
+				<th field="ingishelflife" width="50px" align="center">保质期(天)</th>
+				<th field="ingcname" width="50px" align="center">商品类别</th>
+				<th field="ingtname" width="50px" align="center">商品类型</th>
+				<th field="ingpname" width="50px" align="center">生产厂家</th>
+				<th field="optname" width="50px" align="center">操作人</th>
+				<th field="remark" width="50px" align="center">备注</th>
+			</tr>
+		</thead>
+	</table>
+	<!-- 商品列表展示--end -->
+	<!-- 商品操作按钮--start -->
+	<div id="tb">
+		<div>
+			<a href="javascript:openInGoodsInfoAddDialog()" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+			<a href="javascript:openInGoodsInfoModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
+			<a href="javascript:inGoodsInfoDelete()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+        </div>
+		<div>&nbsp;商品名称：&nbsp;<input type="text" name="s_inginame" id="s_inginame" size="20" onkeydown="if(event.keyCode==13) searchGoodsInfo()"/>
+			&nbsp;&nbsp;保质期：&nbsp;<select class="easyui-combobox" id="s_ingishelflife" name="s_ingishelflife" style="width:200px;" panelHeight="auto">
+							         	 <option value="0">全部</option>
+									     <option value="10" >10天以内到期</option>
+									     <option value="20" >20天以内到期</option>
+									     <option value="30" >30天以内到期</option>
+							         </select>
+			<a href="javascript:searchGoodsInfo()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	</div>
+	<!-- 商品操作按钮--end -->
+	
+	 <!-- 添加商品/修改商品 dialog (start) -->
+	 <div id="dlg" class="easyui-dialog" style="width: 650px;height: 450px;padding: 10px 20px" closed="true" buttons="#dlg-buttons" data-options="modal:true">
+	     <form id="fm" method="post">
+	     	<table cellspacing="5px">
+				<p><input type="hidden" id="ingiid" name="ingiid" /></p>
+				<tr>
+					<td>商品编号：</td>
+		      		<td>
+		      			<input type="text" id="ingicode" name="ingicode" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		      		<td>商品名称：</td>
+		      		<td>
+		      			<input type="text" id="inginame" name="inginame" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      	</tr>
+		      	<tr>
+					<td>商品类别：</td>
+		            <td>
+		      			<input type="hidden" id="ingcid" name="ingcid"/>
+		 				<input type="text" id="ingcname" name="ingcname" class="easyui-validatebox" required="true" readonly="readonly"/>
+					</td>
+					<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					<td colspan="2">
+						<a href="javascript:openChooseIGCDialog()" class="easyui-linkbutton">选择类别</a>
+					</td>
+				</tr>
+				<tr>
+					<td>商品类型：</td>
+		            <td>
+		      			<input type="hidden" id="ingtid" name="ingtid"/>
+		 				<input type="text" id="ingtname" name="ingtname" class="easyui-validatebox" required="true" readonly="readonly"/>
+					</td>
+					<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					<td colspan="2">
+						<a href="javascript:openChooseIGTDialog()" class="easyui-linkbutton">选择类型</a>
+					</td>
+				</tr>
+				<tr>
+					<td>生产厂家：</td>
+		            <td>
+		      			<input type="hidden" id="ingpid" name="ingpid"/>
+		 				<input type="text" id="ingpname" name="ingpname" class="easyui-validatebox" required="true" readonly="readonly"/>
+					</td>
+					<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					<td colspan="2">
+						<a href="javascript:openChooseIGPDialog()" class="easyui-linkbutton">选择厂家</a>
+					</td>
+				</tr>
+				<tr>
+					<td>许可证号：</td>
+		      		<td>
+		      			<input type="text" id="ingilicensenum" name="ingilicensenum" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      	</tr>
+				<tr>
+					<td>商品规格：</td>
+		      		<td>
+		      			<input type="text" id="ingiformat" name="ingiformat" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		      		<td>保质期：</td>
+		      		<td>
+		      			<input type="text" id="ingishelflife" name="ingishelflife" class="easyui-validatebox" required="true"/>
+		      		</td>
+		      	</tr>
+				<tr>
+					<td>备注：</td>
+					<td colspan="4">
+				     	<textarea rows="7" cols="50" name="remark" id="remark"></textarea>
+				    </td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	
+	<div id="dlg-buttons">
+	      <a href="javascript:saveInGoodsInfo()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+	      <a href="javascript: closeInGoodsInfoAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	<!-- 添加商品/修改商品 dialog (end) -->
+	
+	<!-- 选择类别 dialog (start) -->
+	<div id="dlg2" class="easyui-dialog" iconCls="icon-search" style="width: 550px;height: 480px;padding: 10px 20px" closed="true" buttons="#dlg2-buttons" data-options="modal:true">
+		<div style="height: 40px" align="center">
+			类别名称：<input type="text" id="s_ingcname" name="s_ingcname" onkeydown="if(event.keyCode==13) searchIGC()"/>
+			<a href="javascript:searchIGC()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	      <div style="height: 350px;">
+			<table id="dg2" title="查询结果" class="easyui-datagrid" fitColumns="true" pagination="true" pageList="[5,6,7,8]" pageSize="5" rownumbers="true" fit="true" singleSelect="true" url="../inGoodsCategory/queryAllInGoodsCategory.do">
+		      <thead>
+			  	<tr>
+			  		<th field="ingcid" width="50" align="center" hidden="true">类别ID</th>
+			  		<th field="ingccode" width="50" align="center">类别编码</th>
+			        <th field="ingcname" width="100" align="center">类别名称</th>
+			        <th field="remark" width="50" align="center">备注</th>
+			    </tr>
+		      </thead>
+	      	</table>
+	      </div>
+	</div>
+	<div id="dlg2-buttons">
+	      <a href="javascript:chooseIGC()" class="easyui-linkbutton" iconCls="icon-ok">确定</a>
+	      <a href="javascript:closeIGCDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	<!-- 选择类别 dialog (end) -->
+	
+	<!-- 选择类型 dialog (start) -->
+	<div id="dlg3" class="easyui-dialog" iconCls="icon-search" style="width: 550px;height: 480px;padding: 10px 20px" closed="true" buttons="#dlg3-buttons" data-options="modal:true">
+		<div style="height: 40px" align="center">
+			类型名称：<input type="text" id="s_ingtname" name="s_ingtname" onkeydown="if(event.keyCode==13) searchIGT()"/>
+			<a href="javascript:searchIGT()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	      <div style="height: 350px;">
+			<table id="dg3" title="查询结果" class="easyui-datagrid" fitColumns="true" pagination="true" pageList="[5,6,7,8]" pageSize="5" rownumbers="true" fit="true" singleSelect="true" url="../inGoodsType/queryAllInGoodsType.do">
+		      <thead>
+			  	<tr>
+			  		<th field="ingtid" width="50" align="center" hidden="true">类型ID</th>
+			  		<th field="ingtcode" width="50" align="center">类型编码</th>
+			        <th field="ingtname" width="100" align="center">类型名称</th>
+			        <th field="remark" width="50" align="center">备注</th>
+			    </tr>
+		      </thead>
+	      	</table>
+	      </div>
+	</div>
+	<div id="dlg3-buttons">
+	      <a href="javascript:chooseIGT()" class="easyui-linkbutton" iconCls="icon-ok">确定</a>
+	      <a href="javascript:closeIGTDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	<!-- 选择类型 dialog (end) -->
+	
+	<!-- 选择厂家 dialog (start) -->
+	<div id="dlg4" class="easyui-dialog" iconCls="icon-search" style="width: 550px;height: 480px;padding: 10px 20px" closed="true" buttons="#dlg4-buttons" data-options="modal:true">
+		<div style="height: 40px" align="center">
+			类型名称：<input type="text" id="s_ingpname" name="s_ingpname" onkeydown="if(event.keyCode==13) searchIGP()"/>
+			<a href="javascript:searchIGP()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	      <div style="height: 350px;">
+			<table id="dg4" title="查询结果" class="easyui-datagrid" fitColumns="true" pagination="true" pageList="[5,6,7,8]" pageSize="5" rownumbers="true" fit="true" singleSelect="true" url="../inGoodsProducer/queryAllInGoodsProducer.do">
+		      <thead>
+			  	<tr>
+			  		<th field="ingpid" width="50" align="center" hidden="true">厂家ID</th>
+			  		<th field="ingpcode" width="50" align="center">厂家编码</th>
+			        <th field="ingpname" width="100" align="center">厂家名称</th>
+			        <th field="remark" width="50" align="center">备注</th>
+			    </tr>
+		      </thead>
+	      	</table>
+	      </div>
+	</div>
+	<div id="dlg4-buttons">
+	      <a href="javascript:chooseIGP()" class="easyui-linkbutton" iconCls="icon-ok">确定</a>
+	      <a href="javascript:closeIGPDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	<!-- 选择厂家 dialog (end) -->
+</body>
+<script type="text/javascript">
+	// 点击模糊查询按钮触发事件
+	function searchGoodsInfo(){
+		var inginame = $("#s_inginame").val();
+		var ingishelflife = $("#s_ingishelflife").val();
+		$("#dg").datagrid("load",{
+			inginame:inginame,
+			ingishelflife:ingishelflife
+		});
+	}
+	
+	// 定义添加商品/修改商品的URL
+	var saveInGoodsInfoUrl = "../inGoodsInfo/saveInGoodsInfo.do";
+	var updateInGoodsInfoUrl = "../inGoodsInfo/updateInGoodsInfo.do";
+	var currentUrl = "";
+	
+	// 点击添加按钮触发事件
+	function openInGoodsInfoAddDialog(){
+		$("#dlg").dialog("open").dialog("setTitle","添加商品信息");
+		$("#ingicode").removeAttr("readonly");
+		$("#inginame").removeAttr("readonly");
+		currentUrl = saveInGoodsInfoUrl;
+	}
+	
+	// 验证 商品编号ingicode 唯一性
+	$("#ingicode").blur(function(){
+		var ingicode = $("#ingicode").val();
+		if(!/^\w{3,18}$/.test(ingicode)){
+			$.messager.alert("系统提示","商品编号不合法！必须3-18位、数字或字母、下划线","warning");
+			return;
+		}
+		$.ajax({
+			type:"post",
+			dataType:"json",
+			data:{
+				ingicode:ingicode
+			},
+			url:"../inGoodsInfo/checkIngicode.do",
+			success:function(data){
+				if(data.hasIGI == "1"){
+					$.messager.alert("系统提示","商品编码已存在，请重新输入","warning");
+				}
+			},
+			error:function(){
+				$.messager.alert("系统提示","系统繁忙","warning");
+			}
+		});
+	});
+	
+	// 验证 商品名称inginame 唯一性
+	$("#inginame").blur(function(){
+		var inginame = $("#inginame").val();
+		if(!/^\S{2,18}$/.test(inginame)){
+			$.messager.alert("系统提示","商品名称不合法！必须2-18位、汉字、数字或字母、下划线","warning");
+			return;
+		}
+		$.ajax({
+			type:"post",
+			dataType:"json",
+			data:{
+				inginame:inginame
+			},
+			url:"../inGoodsInfo/checkInginame.do",
+			success:function(data){
+				if(data.hasIGI == "1"){
+					$.messager.alert("系统提示","商品名称已存在，请重新输入","warning");
+				}
+			},
+			error:function(){
+				$.messager.alert("系统提示","系统繁忙","warning");
+			}
+		});
+	});
+	
+	// 点击 添加 --> 选择类别 触发事件
+	function openChooseIGCDialog(){
+		$("#s_ingcname").val("");
+		$("#dg2").datagrid("load",{
+			ingcname:""
+		});
+		$("#dlg2").dialog("open").dialog("setTitle","选择类别");
+	}
+	
+	// 点击 类别 --> 模糊搜索
+	function searchIGC(){
+		var ingcname = $("#s_ingcname").val();
+		$("#dg2").datagrid("load",{
+			ingcname:ingcname
+		});
+	}
+	
+	// 点击 类别 --> 确定 选择商品类别
+	function chooseIGC(){
+		var row = $("#dg2").datagrid("getSelected");
+		if(row == null){
+			$.messager.alert("系统提示","请选一个商品类别！","warning");
+			return;
+		}
+		$("#ingcid").val(row.ingcid);
+		$("#ingcname").val(row.ingcname);
+		$("#dlg2").dialog("close");
+	}
+	
+	// 点击 类别 --> 关闭  关闭选择商品类别dialog
+	function closeIGCDialog(){
+		$("#s_ingcname").val("");
+		$("#dg2").datagrid("load",{
+			ingcname:""
+		});
+		$("#dlg2").dialog("close");
+	}
+	
+	// 点击 添加 --> 选择类型 触发事件
+	function openChooseIGTDialog(){
+		$("#s_ingtname").val("");
+		$("#dg3").datagrid("load",{
+			ingtname:""
+		});
+		$("#dlg3").dialog("open").dialog("setTitle","选择类型");
+	}
+	
+	// 点击 类型 --> 模糊搜索
+	function searchIGT(){
+		var ingtname = $("#s_ingtname").val();
+		$("#dg3").datagrid("load",{
+			ingtname:ingtname
+		});
+	}
+	
+	// 点击 类型 --> 确定 选择商品类别
+	function chooseIGT(){
+		var row = $("#dg3").datagrid("getSelected");
+		if(row == null){
+			$.messager.alert("系统提示","请选一个商品类型！","warning");
+			return;
+		}
+		$("#ingtid").val(row.ingtid);
+		$("#ingtname").val(row.ingtname);
+		$("#dlg3").dialog("close");
+	}
+	
+	// 点击 类型 --> 关闭  关闭选择商品类型dialog
+	function closeIGTDialog(){
+		$("#s_ingtname").val("");
+		$("#dg3").datagrid("load",{
+			ingtname:""
+		});
+		$("#dlg3").dialog("close");
+	}
+	
+	// 点击 添加 --> 选择厂家 触发事件
+	function openChooseIGPDialog(){
+		$("#s_ingpname").val("");
+		$("#dg4").datagrid("load",{
+			ingpname:""
+		});
+		$("#dlg4").dialog("open").dialog("setTitle","选择厂家");
+	}
+	
+	// 点击 厂家 --> 模糊搜索
+	function searchIGP(){
+		var ingpname = $("#s_ingpname").val();
+		$("#dg4").datagrid("load",{
+			ingpname:ingpname
+		});
+	}
+	
+	// 点击 厂家 --> 确定 选择商品类别
+	function chooseIGP(){
+		var row = $("#dg4").datagrid("getSelected");
+		if(row == null){
+			$.messager.alert("系统提示","请选一个生产厂家！","warning");
+			return;
+		}
+		$("#ingpid").val(row.ingpid);
+		$("#ingpname").val(row.ingpname);
+		$("#dlg4").dialog("close");
+	}
+	
+	// 点击 类型 --> 关闭  关闭选择商品类型dialog
+	function closeIGPDialog(){
+		$("#s_ingpname").val("");
+		$("#dg4").datagrid("load",{
+			ingpname:""
+		});
+		$("#dlg4").dialog("close");
+	}
+	
+	// 点击 添加商品信息/修改商品信息 保存按钮触发事件
+	function saveInGoodsInfo(){
+		$("#fm").form("submit",{
+			url:currentUrl,
+			onSubmit:function(){
+				return $(this).form("validate"); 
+			},
+			success:function(data){
+				var data=eval("("+data+")");
+				if(data.res == true){
+					$.messager.alert("系统提示","保存成功");
+					closeInGoodsInfoAddDialog();
+					$("#dg").datagrid("reload");
+				}else{
+					$.messager.alert("系统提示","<font color=red>"+data.res+"</font>","warning");
+				}
+			},
+			error:function(){
+				$.messager.alert("系统提示","系统繁忙！","warning");
+			}
+		});
+		currentUrl = "";
+	}
+	
+	// 点击 添加商品信息/修改商品信息 关闭按钮触发事件
+	function closeInGoodsInfoAddDialog(){
+		$("#dlg").dialog("close");
+		$("#fm").form("clear");
+	}
+	
+	// 点击修改按钮触发事件
+	function openInGoodsInfoModifyDialog(){
+		var rows = $("#dg").datagrid("getSelections");
+		if(rows.length != 1){
+			$.messager.alert("系统提示","请选择一条需要修改的商品信息！","warning");
+			return;
+		}
+		var row = rows[0];
+		$("#dlg").dialog("open").dialog("setTitle","修改商品信息");
+		$("#fm").form("load",row);
+		$("#ingicode").attr("readonly","readonly");
+		$("#inginame").attr("readonly","readonly");
+		currentUrl = updateInGoodsInfoUrl;
+	}
+	
+	// 点击 删除按钮触发事件
+	function inGoodsInfoDelete(){
+		var rows = $("#dg").datagrid("getSelections");
+		if(rows.length == 0){
+			$.messager.alert("系统提示","请选择要删除的商品信息！","warning");
+			return;
+		}
+		var ingiids = "";
+		for(var i=0;i<rows.length;i++){
+			ingiids += rows[i].ingiid + ",";
+		}
+		$.messager.confirm("删除提示","您确认要删除这<font color=red>"+rows.length+"</font>条数据吗？",
+			function(r){
+				if(r){
+					$.ajax({
+						type:"post",
+						dataType:"json",
+						data:{ingiids:ingiids},
+						url:"../inGoodsInfo/deleteInGoodsInfo.do",
+						success:function(data){
+							if(data.isDel == "1"){
+								$.messager.alert("系统提示","您已成功删除"+data.delRows+"条数据！");
+								$("#dg").datagrid("reload");
+							}else{
+								$.messager.alert("系统提示","删除失败！","warning");
+							}
+						},
+						error:function(){
+							$.messager.alert("系统提示！","系统繁忙！","error");
+						}
+					});
+				}
+		});
+	}
+</script>
+</html>

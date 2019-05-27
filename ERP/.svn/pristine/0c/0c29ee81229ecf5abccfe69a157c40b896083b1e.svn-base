@@ -1,0 +1,107 @@
+package com.lzf.erp.controller;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.lzf.erp.model.InBuyOrder;
+import com.lzf.erp.model.PageBean;
+import com.lzf.erp.model.User;
+import com.lzf.erp.service.InBuyOrderService;
+import com.lzf.erp.util.ResponseUtil;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+/**@文件名: InBuyOrderController.java
+ * @类功能说明: 订单controller 层
+ * @作者: YangFan
+ * @Email: 
+ * @日期: 2019年5月20日上午11:42:34
+ * @修改说明:<br> 
+ * <pre>
+ * 	 <li>作者: YangFan</li> 
+ * 	 <li>日期: 2019年5月20日上午11:42:34</li> 
+ *	 <li>内容: </li>
+ * </pre>
+ */
+@Controller
+@RequestMapping("/inBuyOrder")
+public class InBuyOrderController {
+
+	@Autowired
+	private InBuyOrderService inBuyOrderService;
+	
+	/**@方法名: queryAllInBuyOrder
+	 * @方法说明: 订单主表+明细表 查询  模糊搜索+分页
+	 * @作者: YangFan
+	 * @邮箱：
+	 * @日期: 2019年5月20日上午11:42:02
+	 * @param page
+	 * @param s_inbcname
+	 * @param s_businame
+	 * @param response
+	 * @return: void
+	 * @throws Exception 
+	 */
+	@RequestMapping("/findAllInBuyOrder")
+	public void queryAllInBuyOrder(PageBean page,String s_inboname,String s_businame,HttpServletResponse response) throws Exception {
+		Map<String,Object> map=new HashMap<String,Object>();
+		map.put("page", page);
+		map.put("s_inbcname", s_inboname);
+		map.put("s_businame", s_businame);
+		JSONArray jsonArray=inBuyOrderService.findAllInBuyOrder(map);
+		int total=inBuyOrderService.findAllInBuyOrderCount(map);
+		JSONObject json=new JSONObject();
+		json.put("rows", jsonArray);
+		json.put("total", total);
+		ResponseUtil.write(response, json);
+	}
+	
+	/**@方法名: addInBuyOrder
+	 * @方法说明: 添加订单表+明细表信息
+	 * @作者: YangFan
+	 * @邮箱：
+	 * @日期: 2019年5月21日上午10:23:45
+	 * @param inBuyOrder
+	 * @param request
+	 * @param response
+	 * @return: void
+	 * @throws Exception 
+	 */
+	@RequestMapping("/addInBuyOrder")
+	public void addInBuyOrder(@RequestBody InBuyOrder inBuyOrder,HttpServletRequest request,HttpServletResponse response) throws Exception {
+		User user=(User)request.getSession().getAttribute("currentUser");
+		int n=inBuyOrderService.addInBuyOrder(inBuyOrder,user);
+		JSONObject json =new JSONObject();
+		json.put("res", n);
+		ResponseUtil.write(response, json);
+	}
+	@RequestMapping("/updateInBuyOrder")
+	public void updateInBuyOrder(@RequestBody InBuyOrder inBuyOrder,HttpServletResponse response) throws Exception { 
+		int n =inBuyOrderService.updateInBuyOrder(inBuyOrder);
+		JSONObject json =new JSONObject();
+		json.put("res", n);
+		ResponseUtil.write(response, json);
+	}
+	@RequestMapping("/deleteInBuyOrder")
+	public void deleteInBuyOrder(int inboid,HttpServletResponse response) throws Exception {
+		int n =inBuyOrderService.deleteInBuyOrder(inboid);
+		JSONObject json =new JSONObject();
+		json.put("res", n);
+		ResponseUtil.write(response, json);
+	}
+	
+	@RequestMapping("/queryInBuyOrderForStatistics.do")
+	public void queryInBuyOrderForStatistics(HttpServletResponse response) throws Exception {
+		JSONArray jsonArray = inBuyOrderService.queryInBuyOrderForStatistics();
+		ResponseUtil.write(response, jsonArray);
+	}
+}

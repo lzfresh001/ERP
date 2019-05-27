@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lzf.erp.dao.InsupplierCategoryDao">
+	<resultMap type="InsupplierCategory" id="insupplierCategoryMap">
+		<id column="inscid" property="inscid"/>
+		<result column="insccode" property="insccode"/>
+		<result column="inscname" property="inscname"/>
+		<result column="remark" property="remark"/>
+		<result column="state" property="state"/>
+		<result column="delflag" property="delflag"/>
+		<result column="optid" property="optid"/>
+		<result column="optname" property="optname"/>
+		<result column="optdeptid" property="optdeptid"/>
+		<result column="optorgid" property="optorgid"/>
+		<result column="currdate" property="currdate"/>
+	</resultMap>
+	<sql id="exqueryInsupplierCategory">
+		<if test="s_inscname!=null and s_inscname!=''">
+			and inscname like concat("%",#{s_inscname},"%")
+		</if>
+		<if test="s_optname!=null and s_optname!=''">
+			and optname like concat("%",#{s_optname},"%")
+		</if>
+	</sql>
+	<select id="findAllICategory" parameterType="Map" resultMap="insupplierCategoryMap">
+		select
+			inscid,
+			insccode,
+			inscname,
+			remark,
+			state,
+			delflag,
+			optid,
+			optname,
+			optdeptid,
+			optorgid,
+			currdate
+		from 
+			insuppliercategory
+		where
+			delflag=1
+		<include refid="exqueryInsupplierCategory"></include>
+		limit
+			#{pageBean.start},#{pageBean.rows}	
+			
+	</select>
+	<select id="findAllICategoryCount" parameterType="Map" resultType="int">
+		select
+			count(*)
+		from
+			insuppliercategory
+		where
+			delflag=1
+		<include refid="exqueryInsupplierCategory"></include>
+	</select>
+	
+	<select id="findInsupplierCategoryByCode" parameterType="String" resultType="int">
+		select 
+			count(*)
+		from
+			insuppliercategory
+		where
+			insccode=#{insccode}
+	</select>
+	
+	<select id="findInsupplierCategoryByName" parameterType="String" resultType="int">
+		select 
+			count(*)
+		from
+			insuppliercategory
+		where
+			inscname=#{inscname}
+	</select>
+	
+	<select id="findNameById" parameterType="int" resultType="String">
+		select
+			inscname
+		from
+			insuppliercategory
+		where
+			inscid=#{inscid}
+			
+	</select>
+	
+	<select id="findAllICategoryList" resultMap="insupplierCategoryMap">
+		select
+			inscid,
+			insccode,
+			inscname,
+			remark,
+			state,
+			delflag,
+			optid,
+			optname,
+			optdeptid,
+			optorgid,
+			currdate
+		from 
+			insuppliercategory
+		where
+			delflag=1
+	</select>
+	
+	<insert id="addCs" parameterType="InsupplierCategory">
+		insert into 
+			insuppliercategory(
+				insccode,
+				inscname,
+				remark,
+				state,
+				delflag,
+				optid,
+				optname,
+				optdeptid,
+				optorgid,
+				currdate
+			)
+		values(
+				#{insccode},
+				#{inscname},
+				#{remark},
+				1,
+				1,
+				#{optid},
+				#{optname},
+				#{optdeptid},
+				1,
+				now()
+		)
+	</insert>
+	<update id="updateCs" parameterType="InsupplierCategory">
+		update 
+			insuppliercategory
+		set
+			insccode=#{insccode},
+			inscname=#{inscname},
+			remark=#{remark}
+		where
+			inscid=#{inscid}
+	</update>
+	<delete id="deleteCsById" parameterType="String">
+		update
+			insuppliercategory
+		set
+			delflag=0
+		where
+			inscid=#{inscid}
+	</delete>
+</mapper>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>交货方式管理</title>
+<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/default/easyui.css"/>
+		<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/icon.css"/>
+		<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.min.js"></script>
+		<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.easyui.min.js"></script>
+		<script type="text/javascript" src="../jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js"></script>
+<style type="text/css">
+	.red{
+		color:red;
+	}
+	.easyui-dialog{
+		modal:true;
+	}
+</style>
+</head>
+<body style="margin: 1px;">
+      <table id="dg" pageList="[7,8,9,10]" pageSize="10" title="交货方式管理" class="easyui-datagrid" fitColumns="true" pagination="true" rownumbers="true" url="../inDeliveryWay/findAllInDeliveryWay.do" 	fit="true" toolbar="#tb">
+	     <thead>
+	     	<tr>
+				<th field="cb" checkbox="true" align="center"></th>
+				<th field="indwid" width="50" align="center" hidden="true">id</th>
+				<th field="indwcode" width="50" align="center">编号</th>
+				<th field="indwname" width="50" align="center">交货方式名称</th>
+				<th field="remark" width="50" align="center">备注</th>
+				<th field="optname" width="50" align="center" >操作人名称</th>
+				<th field="currdate" width="50" align="center">创建时间</th>
+			</tr>
+	   </thead>
+	  </table>
+    <div id="tb">
+		<div>
+			<a href="javascript:openInDeliveryWayAddDialog()" class="easyui-linkbutton" iconCls="icon-add" plain="true">添加</a>
+			<a href="javascript:openInDeliveryWayModifyDialog()" class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a>
+			<a href="javascript:openInDeliveryWayDeleteDialog()" class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+      	</div>
+	     <div>&nbsp;交货方式类型名称：&nbsp;<input type="text" name="s_indwname" id="s_indwname" size="20" onkeydown="if(event.keyCode==13) searchICategory()"/>
+			<a href="javascript:searchICategory()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	</div>
+	<!--添加交货方式类别  -->
+	<div id="dlg" class="easyui-dialog" style="width: 700;height: 350px;padding: 10px 20px" closed="true" buttons="#dlg-buttons">
+	     <form id="fm" method="post">
+	           <table cellspacing="5px">
+				<p><input type="hidden" id="indwid" name="indwid" /></p>
+				<tr>
+					<td>编码：</td>
+			      <td><input type="text" id="indwcode" name="indwcode" class="easyui-validatebox" required="true" onblur="codeCheck()"/></td>
+			      
+			    </tr>
+				<tr>
+					<td>交货方式名称：</td>
+			      <td><input type="text" id="indwname" name="indwname" class="easyui-validatebox" required="true" onblur="nameCheck()"/></td>
+			      
+			    </tr>
+				
+		<tr><td>备注：</td><td colspan="4">
+		     <textarea rows="7" cols="50" name="remark" id="remark"></textarea></td>
+		</tr></table></form></div>
+		<div id="dlg-buttons">
+	      <a href="javascript:saveInDeliveryWay()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+	      <a href="javascript: closeInDeliveryWayAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	
+		
+	<script type="text/javascript">
+		var url="";
+		var code="";
+		var name=""
+		/*模糊查找  */
+		function searchICategory(){
+			$('#dg').datagrid('load',{
+				s_indwname:$("#s_indwname").val(),
+			});
+		}
+		/*添加交货方式类别  */
+		function openInDeliveryWayAddDialog(){
+			$("#fm").form('clear');
+			$("#dlg").dialog("open",true).dialog("setTitle","添加交货方式类别信息");
+			url="../inDeliveryWay/addInDeliveryWay.do";
+		}
+
+		/*添加交货方式类别--保存按钮  */
+		function saveInDeliveryWay(){
+			alert("0000");
+			code="";
+			name="";
+			$("#fm").form("submit",{
+				url:url,
+				onSubmit:function(){
+					return $(this).form("validate"); 
+				},
+				success:function(data){
+					var data=eval('('+data+')');
+					if(data.result>0){
+						$.messager.alert("系统提示","保存成功！");
+						$("#fm").form("clear");
+						 closeInDeliveryWayAddDialog();
+						$("#dg").datagrid("reload");
+					}else{
+						$.messager.alert("系统提示","<font color=red>系统繁忙</font>");
+						
+					}
+				}
+			})
+
+		}
+		/*添加交货方式类别--取消按钮  */
+		function closeInDeliveryWayAddDialog(){
+			$("#dlg").dialog("close");//关闭消息框
+			$("#fm").form('clear');//清空表单
+		}
+		/*修改交货方式类别-弹框  */
+		function openInDeliveryWayModifyDialog(){
+			$("#fm").form('clear');
+			var selectedRows=$("#dg").datagrid('getSelections');
+			if(selectedRows.length!=1){
+				$.messager.alert('系统提示','请选择一条要编辑的数据！');
+				return;
+			}
+			var row=selectedRows[0];
+			$("#uname").attr("disabled","disabled");
+			$("#dlg").dialog("open").dialog("setTitle","修改交货方式类别信息");
+			$("#fm").form("load",row);
+			code=$("#indwcode").val();
+			name=$("#indwname").val();
+			url="../inDeliveryWay/updateInDeliveryWay.do";
+
+		}
+		/*删除交货方式类别  */
+		 function openInDeliveryWayDeleteDialog(){
+			var selectedRows=$("#dg").datagrid('getSelections');
+			if(selectedRows.length==0){
+				$.messager.alert('系统提示','请选择要删除的数据！');
+				return;
+			}
+			var strIds=[];
+			for(var i=0;i<selectedRows.length;i++){
+				strIds.push(selectedRows[i].indwid);
+				}
+			var ids=strIds.join(",");
+			 $.messager.confirm("系统提示","您确认要删除这<font color=red>"+selectedRows.length+"</font>条数据吗？",function(r){
+				if(r){
+					$.post("../inDeliveryWay/deleteInDeliveryWayById.do",{delIds:ids},function(result){ //ajax 一种
+						if(result.result>0){
+							$.messager.alert('系统提示',"您已成功删除<font color=red>"+result.result+"</font>条数据！");
+							$("#dg").datagrid("reload");
+						}else{
+							$.messager.alert('系统提示',"系统繁忙");
+						}
+					},"json"); 
+				}
+			 });
+				
+		}
+		/*编号唯一性验证  */
+		function codeCheck(){
+			$.ajax({
+				url:"../inDeliveryWay/findInDeliveryWayByCode.do",
+				type:"POST",
+				dataType:"json",
+				data:{
+					code:$("#indwcode").val()
+				},
+				success:function(data){
+					if(data.result!=0){
+						$.messager.alert("提示信息","编号已存在","warning");
+						$("#indwcode").val(code);
+					}
+				}
+			});
+		
+		}
+		function nameCheck(){
+			$.ajax({
+				url:"../inDeliveryWay/findInDeliveryWayByName.do",
+				type:"POST",
+				dataType:"json",
+				data:{
+					name:$("#indwname").val()
+				},
+				success:function(data){
+					if(data.result!=0){
+						$.messager.alert("提示信息","名称已存在","warning");
+						$("#indwname").val(name);
+					}
+				}
+			});
+		}
+	</script>
+</body>
+</html>

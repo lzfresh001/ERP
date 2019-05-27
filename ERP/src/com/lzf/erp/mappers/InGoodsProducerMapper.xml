@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.InGoodsProducerDao" >
+	<!-- ingoodsproducer的resultMap -->
+	<resultMap id="inGoodsProducerResultMap" type="InGoodsProducer" >
+	    <id column="ingpid" property="ingpid" jdbcType="INTEGER" />
+	    <result column="ingpcode" property="ingpcode" jdbcType="VARCHAR" />
+	    <result column="ingpname" property="ingpname" jdbcType="VARCHAR" />
+	    <result column="ingplinkman" property="ingplinkman" jdbcType="VARCHAR" />
+	    <result column="ingpphone" property="ingpphone" jdbcType="VARCHAR" />
+	    <result column="ingpaddress" property="ingpaddress" jdbcType="VARCHAR" />
+	    <result column="remark" property="remark" jdbcType="VARCHAR" />
+	    <result column="delflag" property="delflag" jdbcType="INTEGER" />
+	    <result column="state" property="state" jdbcType="INTEGER" />
+	    <result column="optid" property="optid" jdbcType="INTEGER" />
+	    <result column="optname" property="optname" jdbcType="VARCHAR" />
+	    <result column="optdeptid" property="optdeptid" jdbcType="INTEGER" />
+	    <result column="optorgid" property="optorgid" jdbcType="INTEGER" />
+	    <result column="currdate" property="currdate" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<!-- 全查ingoodsproducer表 -->
+	<select id="queryAllInGoodsProducer" parameterType="Map" resultMap="inGoodsProducerResultMap">
+		select
+			gp.ingpid,
+			gp.ingpcode,
+			gp.ingpname,
+			gp.ingplinkman,
+			gp.ingpphone,
+			gp.ingpaddress,
+			gp.remark,
+			gp.delflag,
+			gp.state,
+			gp.optid,
+			gp.optname,
+			gp.optdeptid,
+			gp.optorgid,
+			gp.currdate
+		from
+			ingoodsproducer gp
+		where
+			gp.delflag=1
+			<if test="ingpname != null and ingpname != ''">
+				and gp.ingpname like '%${ingpname}%'
+			</if>
+		limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	<!-- 根据ingpid查ingoodsproducer表 -->
+	<select id="queryAllInGoodsProducerByIngpid" parameterType="Integer" resultMap="inGoodsProducerResultMap">
+		select
+			gp.ingpid,
+			gp.ingpcode,
+			gp.ingpname,
+			gp.ingplinkman,
+			gp.ingpphone,
+			gp.ingpaddress,
+			gp.remark,
+			gp.delflag,
+			gp.state,
+			gp.optid,
+			gp.optname,
+			gp.optdeptid,
+			gp.optorgid,
+			gp.currdate
+		from
+			ingoodsproducer gp
+		where
+			gp.delflag=1 and gp.ingpid=#{ingpid}
+	</select>
+	<!-- 查询ingoodsproducer表条数 -->
+	<select id="queryInGoodsProducerCount" parameterType="Map" resultType="Integer">
+		select count(*) from ingoodsproducer gp
+			where
+				gp.delflag=1
+				<if test="ingpname != null and ingpname != ''">
+					and gp.ingpname like '%${ingpname}%'
+				</if>
+	</select>
+	<!-- 根据ingpcode查ingoodsproducer表 -->
+	<select id="queryAllInGoodsProducerByIngpcode" parameterType="String" resultMap="inGoodsProducerResultMap">
+		select
+			gp.ingpid,
+			gp.ingpcode,
+			gp.ingpname,
+			gp.ingplinkman,
+			gp.ingpphone,
+			gp.ingpaddress,
+			gp.remark,
+			gp.delflag,
+			gp.state,
+			gp.optid,
+			gp.optname,
+			gp.optdeptid,
+			gp.optorgid,
+			gp.currdate
+		from
+			ingoodsproducer gp
+		where
+			gp.ingpcode=#{ingpcode}
+	</select>
+	<!-- 根据ingpname查ingoodsproducer表 -->
+	<select id="queryAllInGoodsProducerByIngpname" parameterType="String" resultMap="inGoodsProducerResultMap">
+		select
+			gp.ingpid,
+			gp.ingpcode,
+			gp.ingpname,
+			gp.ingplinkman,
+			gp.ingpphone,
+			gp.ingpaddress,
+			gp.remark,
+			gp.delflag,
+			gp.state,
+			gp.optid,
+			gp.optname,
+			gp.optdeptid,
+			gp.optorgid,
+			gp.currdate
+		from
+			ingoodsproducer gp
+		where
+			gp.ingpname=#{ingpname}
+	</select>
+	<!-- 根据ingpphone查ingoodsproducer表 -->
+	<select id="queryAllInGoodsProducerByIngpphone" parameterType="String" resultMap="inGoodsProducerResultMap">
+		select
+			gp.ingpid,
+			gp.ingpcode,
+			gp.ingpname,
+			gp.ingplinkman,
+			gp.ingpphone,
+			gp.ingpaddress,
+			gp.remark,
+			gp.delflag,
+			gp.state,
+			gp.optid,
+			gp.optname,
+			gp.optdeptid,
+			gp.optorgid,
+			gp.currdate
+		from
+			ingoodsproducer gp
+		where
+			gp.ingpphone=#{ingpphone}
+	</select>
+	<!-- 添加ingoodsproducer表 -->
+	<insert id="addInGoodsProducer" parameterType="InGoodsProducer">
+		insert into 
+			ingoodsproducer
+				(ingpcode,ingpname,ingplinkman,ingpphone,ingpaddress,remark,delflag,state,optid,optname,optdeptid,optorgid,currdate)
+			values
+				(#{ingpcode},#{ingpname},#{ingplinkman},#{ingpphone},#{ingpaddress},#{remark},#{delflag},#{state},#{optid},#{optname},#{optdeptid},#{optorgid},#{currdate})
+	</insert>
+	<!-- 修改ingoodsproducer表  -->
+	<update id="updateInGoodsProducer" parameterType="InGoodsProducer">
+		update ingoodsproducer set
+			ingplinkman=#{ingplinkman},ingpphone=#{ingpphone},ingpaddress=#{ingpaddress},remark=#{remark}
+		where
+			ingpid=#{ingpid}
+	</update>
+	<!-- 逻辑删除ingoodsproducer表 -->
+	<update id="deleteInGoodsProducer" parameterType="Integer">
+		update ingoodsproducer set delflag=0 where ingpid=#{ingpid}
+	</update>
+</mapper>

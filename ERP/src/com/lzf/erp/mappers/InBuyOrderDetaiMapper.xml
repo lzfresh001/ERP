@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lzf.erp.dao.InBuyOrderDetailDao" >
+	<!-- inbuyapplydetail的resultMap -->
+	<resultMap id="inBuyOrderDetailResultMap" type="InBuyOrderDetail" >
+   	    <id column="inbodid" property="inbodid"/>
+	    <result column="inbaid" property="inbaid"/>
+	    <result column="inbadid" property="inbadid"/>
+	    <result column="inbcdid" property="inbcdid"/>
+	    <result column="inboid" property="inboid"/>
+	    <result column="insiid" property="insiid"/>
+	    <result column="ingiid" property="ingiid" jdbcType="INTEGER" />
+	    <result column="mycou" property="mycou" jdbcType="INTEGER" />
+	    <result column="myprice" property="myprice" jdbcType="DOUBLE" />
+	    <result column="mymoney" property="mymoney" jdbcType="DOUBLE" />
+	    <result column="usecou" property="usecou" jdbcType="INTEGER" />
+	    <result column="taxprice" property="taxprice" jdbcType="DOUBLE" />
+	    <result column="taxmoney" property="taxmoney" jdbcType="DOUBLE" />
+	    <result column="invoicesmoney" property="invoicesmoney" jdbcType="DOUBLE" />
+	    <result column="paymoney" property="paymoney" jdbcType="DOUBLE" />
+	    <result column="remark" property="remark" jdbcType="VARCHAR" />
+	    <result column="state" property="state" jdbcType="INTEGER" />
+	    <result column="delflag" property="delflag" jdbcType="INTEGER" />
+	    <!-- 关联物品信息子表 -->
+		<association property="inGoodsInfo" javaType="InGoodsInfo" column="ingiid" 
+			select="com.lzf.erp.dao.InGoodsInfoDao.queryInGoodsInfoByIngiid" >
+		</association>
+	</resultMap>
+	<!-- 根据inbaid查询inbuyapplydetail表 -->
+	<select id="queryInBuyOrderDetailByInsiid" parameterType="Integer" resultMap="inBuyOrderDetailResultMap">
+		select
+			ibod.inbodid,
+			ibod.inbadid,
+			ibod.inbaid,
+			ibod.inbcid,
+			ibod.inbcdid,
+			ibod.inboid,
+			ibod.insiid,
+			ibod.ingiid,
+			ibod.mycou,
+			ibod.myprice,
+			ibod.mymoney,
+			ibod.usecou,
+			ibod.taxprice,
+			ibod.taxmoney,
+			ibod.invoicesmoney,
+			ibod.paymoney,
+			ibod.remark,
+			ibod.state,
+			ibod.delflag
+		from
+			inbuyorderdetail ibod
+		where
+			ibod.delflag=1 and ibod.inboid=#{inboid}
+	</select>
+	<insert id="addInBuyOrderDetail" parameterType="InBuyOrderDetail">
+		insert into
+			inbuyorderdetail(
+				inbadid,
+				inbaid,
+				inbcid,
+				inbcdid,
+				inboid,
+				insiid,
+				ingiid,
+				mycou,
+				myprice,
+				mymoney,
+				usecou,
+				taxprice,
+				taxmoney,
+				invoicesmoney,
+				paymoney,
+				remark,
+				state,
+				delflag
+			)values(
+				#{inbadid},
+				#{inbaid},
+				#{inbcid},
+				#{inbcdid},
+				#{inboid},
+				#{insiid},
+				#{ingiid},
+				#{mycou},
+				#{myprice},
+				#{mymoney},
+				#{usecou},
+				#{taxprice},
+				#{taxmoney},
+				#{invoicesmoney},
+				#{paymoney},
+				#{remark},
+				0,
+				1
+			)
+	</insert>
+	
+	<update id="deleteInBuyOrderDetail" parameterType="int">
+		update
+			inbuyorderdetail
+		set
+			delflag=0
+		where
+			inboid=#{inboid}
+	</update>
+</mapper>
